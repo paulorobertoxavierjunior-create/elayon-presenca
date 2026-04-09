@@ -4,38 +4,116 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar acesso • Elayon Presença</title>
+  <meta name="description" content="Crie sua conta no Elayon Presença e inicie seu período gratuito.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="cadastro">
   <main class="app-shell">
     <section class="form-card">
       <div class="hero-badge">Cadastro</div>
-      <h1 class="form-title">Criar acesso</h1>
-      <p class="form-subtitle">Comece seu período de uso gratuito.</p>
 
-      <form id="signupForm" class="form-stack">
+      <h1 class="form-title">Criar acesso</h1>
+      <p class="form-subtitle">
+        Comece seu período inicial de uso e prepare sua entrada no Elayon Presença.
+      </p>
+
+      <form id="signupForm" class="form-stack" novalidate>
         <label for="signupName">Nome</label>
-        <input id="signupName" type="text" placeholder="Seu nome">
+        <input
+          id="signupName"
+          name="signupName"
+          type="text"
+          placeholder="Seu nome"
+          autocomplete="name"
+          required
+        >
 
         <label for="signupEmail">E-mail</label>
-        <input id="signupEmail" type="email" placeholder="seuemail@exemplo.com">
+        <input
+          id="signupEmail"
+          name="signupEmail"
+          type="email"
+          placeholder="seuemail@exemplo.com"
+          autocomplete="email"
+          required
+        >
 
         <label for="signupPassword">Senha</label>
-        <input id="signupPassword" type="password" placeholder="crie sua senha">
+        <div class="password-wrap">
+          <input
+            id="signupPassword"
+            name="signupPassword"
+            type="password"
+            placeholder="Crie sua senha"
+            autocomplete="new-password"
+            required
+          >
+          <button
+            type="button"
+            class="toggle-password"
+            data-target="signupPassword"
+            aria-label="Mostrar ou ocultar senha"
+          >
+            👁
+          </button>
+        </div>
 
-        <button class="btn btn-primary" type="submit">Criar acesso</button>
+        <label for="signupPasswordConfirm">Confirmar senha</label>
+        <div class="password-wrap">
+          <input
+            id="signupPasswordConfirm"
+            name="signupPasswordConfirm"
+            type="password"
+            placeholder="Repita sua senha"
+            autocomplete="new-password"
+            required
+          >
+          <button
+            type="button"
+            class="toggle-password"
+            data-target="signupPasswordConfirm"
+            aria-label="Mostrar ou ocultar confirmação de senha"
+          >
+            👁
+          </button>
+        </div>
+
+        <button class="btn btn-primary" type="submit">
+          Criar acesso
+        </button>
       </form>
 
-      <div id="signupMessage" class="form-message">Cadastro ainda será conectado ao Supabase.</div>
+      <div id="signupMessage" class="form-message">
+        Aguardando criação de acesso.
+      </div>
 
       <div class="hero-actions top-gap">
         <a class="btn btn-secondary" href="login.html">Já tenho acesso</a>
         <a class="btn btn-secondary" href="index.html">Voltar</a>
       </div>
+
+      <div class="hero-links top-gap">
+        <a href="index.html">Ir para a página inicial</a>
+      </div>
     </section>
   </main>
 
-  <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+    (function () {
+      const buttons = document.querySelectorAll(".toggle-password");
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const input = document.getElementById(targetId);
+          if (!input) return;
+
+          const isPassword = input.type === "password";
+          input.type = isPassword ? "text" : "password";
+          btn.textContent = isPassword ? "🙈" : "👁";
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
