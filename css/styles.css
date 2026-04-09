@@ -199,3 +199,45 @@ a{text-decoration:none;color:inherit}
   color:var(--muted);
   line-height:1.5;
 }
+
+.panel-subtitle{
+  margin: 6px 0 0;
+  font-size: 26px;
+  color: var(--text);
+}
+
+.logs-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.logs-panel{
+  margin-top:16px;
+}
+
+.lion-locked{
+  opacity:0.96;
+}
+
+.lion-locked .btn[disabled]{
+  opacity:0.65;
+  cursor:not-allowed;
+}
+
+.log{
+  min-height:220px;
+  max-height:320px;
+  overflow:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+  background:#06141b;
+  color:#e8f6f8;
+  border-radius:18px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,0.05);
+  font-family:monospace;
+  line-height:1.5;
+}
