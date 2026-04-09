@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar acesso • Elayon Presença</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="cadastro">
+  <main class="app-shell">
+    <section class="form-card">
+      <div class="hero-badge">Cadastro</div>
+      <h1 class="form-title">Criar acesso</h1>
+      <p class="form-subtitle">Comece seu período de uso gratuito.</p>
+
+      <form id="signupForm" class="form-stack">
+        <label for="signupName">Nome</label>
+        <input id="signupName" type="text" placeholder="Seu nome">
+
+        <label for="signupEmail">E-mail</label>
+        <input id="signupEmail" type="email" placeholder="seuemail@exemplo.com">
+
+        <label for="signupPassword">Senha</label>
+        <input id="signupPassword" type="password" placeholder="crie sua senha">
+
+        <button class="btn btn-primary" type="submit">Criar acesso</button>
+      </form>
+
+      <div id="signupMessage" class="form-message">Cadastro ainda será conectado ao Supabase.</div>
+
+      <div class="hero-actions top-gap">
+        <a class="btn btn-secondary" href="login.html">Já tenho acesso</a>
+        <a class="btn btn-secondary" href="index.html">Voltar</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
