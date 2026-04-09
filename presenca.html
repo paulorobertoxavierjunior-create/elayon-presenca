@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Presença • Elayon</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="presenca">
+  <main class="app-shell">
+    <section class="hero-card">
+      <div class="hero-badge">App Presença</div>
+      <h1 class="hero-title">Conferência inicial</h1>
+      <p class="hero-subtitle">
+        Esta será a tela principal do fluxo falado. Primeiro vamos estabilizar a base.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btnStartPresence">Iniciar conferência</button>
+        <button class="btn btn-secondary" id="btnResetPresence">Resetar</button>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <article class="info-card">
+        <h2>Status</h2>
+        <p id="presenceStatus">Aguardando início.</p>
+      </article>
+
+      <article class="info-card">
+        <h2>Próximo passo</h2>
+        <p id="presenceNextStep">Fluxo falado será conectado aqui.</p>
+      </article>
+
+      <article class="info-card">
+        <h2>Saída final</h2>
+        <div class="hero-actions vertical">
+          <button class="btn btn-primary">Confirmar e seguir</button>
+          <button class="btn btn-secondary">Reiniciar teste</button>
+          <button class="btn btn-secondary">Gerar Relatório Lion</button>
+        </div>
+      </article>
+
+      <article class="info-card">
+        <h2>Ajuda</h2>
+        <div class="hero-actions vertical">
+          <button class="btn btn-secondary">Ajuda PsiQ</button>
+          <button class="btn btn-secondary">Ajuda Health</button>
+          <button class="btn btn-secondary">Suporte</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
