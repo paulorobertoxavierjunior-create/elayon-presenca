@@ -4,46 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel • Elayon Presença</title>
+  <meta name="description" content="Painel do operador do Elayon Presença.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="painel">
   <main class="app-shell">
     <section class="hero-card">
-      <div class="hero-badge">Painel</div>
-      <h1 class="hero-title">Seu espaço de presença</h1>
+      <div class="hero-badge">Painel do operador</div>
+
+      <h1 class="hero-title">Entrada pelo crivo do operador</h1>
       <p class="hero-subtitle">
-        Aqui o usuário acessa a conferência inicial, acompanha sua sessão e escolhe
-        entre seguir, reiniciar ou gerar o Relatório Lion.
+        Antes de usar qualquer ferramenta da Lion, todo usuário precisa passar
+        pela avaliação inicial obrigatória do operador.
       </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btnIniciarAvaliacao" type="button">
+          Iniciar avaliação obrigatória
+        </button>
+
+        <button class="btn btn-secondary" id="btnLogout" type="button">
+          Logout
+        </button>
+      </div>
     </section>
 
     <section class="grid-two">
       <article class="info-card">
-        <h2>App Presença</h2>
-        <p>Fluxo guiado por fala, silêncio e continuidade.</p>
-        <a class="btn btn-primary" href="presenca.html">Abrir</a>
+        <h2>Identificação</h2>
+        <p><strong>Nome:</strong> <span id="userName">Carregando...</span></p>
+        <p><strong>E-mail:</strong> <span id="userEmail">Carregando...</span></p>
       </article>
 
       <article class="info-card">
-        <h2>Relatório Lion</h2>
-        <p>Versão aprofundada da leitura, com gráficos e JSON técnico.</p>
-        <a class="btn btn-secondary" href="relatorio-lion.html">Ver</a>
+        <h2>Status do sistema</h2>
+        <p><strong>Sistema:</strong> <span id="systemStatus">ON</span></p>
+        <p><strong>Status de acesso:</strong> <span id="accessStatus">Pendente de avaliação</span></p>
       </article>
 
       <article class="info-card">
-        <h2>Status do uso</h2>
-        <p id="trialStatus">Trial ainda será conectado.</p>
+        <h2>Avaliação obrigatória</h2>
+        <p id="evaluationText">
+          O acesso às ferramentas Lion será liberado após a conclusão da avaliação inicial.
+        </p>
+
+        <div class="hero-actions vertical top-gap">
+          <button class="btn btn-primary" id="btnAbrirOperador" type="button">
+            Abrir teste do operador
+          </button>
+
+          <button class="btn btn-secondary" id="btnSimularAprovacao" type="button">
+            Simular aprovação
+          </button>
+        </div>
       </article>
 
-      <article class="info-card">
-        <h2>Saúde do sistema</h2>
-        <p>Canal interno de diagnóstico e atualização.</p>
-        <a class="btn btn-secondary" href="manutencao.html">Abrir</a>
+      <article class="info-card lion-locked" id="lionToolsCard">
+        <h2>Ferramentas Lion</h2>
+        <p id="lionToolsText">
+          Ainda bloqueadas. Conclua a avaliação obrigatória para liberar o uso autodidata.
+        </p>
+
+        <div class="hero-actions vertical top-gap">
+          <button class="btn btn-secondary" id="btnFalaLivre" type="button" disabled>
+            Fala livre
+          </button>
+
+          <button class="btn btn-secondary" id="btnTreinamentoVocal" type="button" disabled>
+            Treinamento vocal
+          </button>
+
+          <button class="btn btn-secondary" id="btnRelatorioLion" type="button" disabled>
+            Relatório Lion
+          </button>
+        </div>
       </article>
+    </section>
+
+    <section class="hero-card">
+      <div class="logs-header">
+        <div>
+          <div class="hero-badge">Logs temporários de configuração</div>
+          <h2 class="panel-subtitle">Aba de logs</h2>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn btn-secondary" id="btnToggleLogs" type="button">
+            Ocultar logs
+          </button>
+          <button class="btn btn-secondary" id="btnLimparLogs" type="button">
+            Limpar logs
+          </button>
+        </div>
+      </div>
+
+      <div id="logsPanel" class="logs-panel">
+        <div class="log" id="logBox"></div>
+      </div>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/painel.js"></script>
 </body>
 </html>
