@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste do Operador • Elayon Presença</title>
+  <meta name="description" content="Avaliação inicial obrigatória do operador no Elayon Presença.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="operador-teste">
+  <main class="app-shell">
+    <section class="hero-card">
+      <div class="hero-badge">Avaliação obrigatória</div>
+
+      <h1 class="hero-title">Teste do operador</h1>
+      <p class="hero-subtitle">
+        Antes de acessar as ferramentas Lion, todo usuário deve passar por esta
+        conferência inicial em 3 etapas.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btnStartOperator" type="button">
+          Ligar mic e iniciar
+        </button>
+
+        <button class="btn btn-secondary" id="btnStopOperator" type="button">
+          Parar interação
+        </button>
+
+        <a class="btn btn-secondary" href="painel.html">Voltar</a>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <article class="info-card">
+        <h2>Status da sessão</h2>
+        <p><strong>Sistema:</strong> <span id="operatorSystemStatus">Aguardando</span></p>
+        <p><strong>Etapa atual:</strong> <span id="operatorCurrentStep">Nenhuma</span></p>
+        <p><strong>Microfone:</strong> <span id="operatorMicStatus">Desligado</span></p>
+      </article>
+
+      <article class="info-card">
+        <h2>Instrução atual</h2>
+        <p id="operatorInstruction">
+          Inicie a avaliação para começar a conferência do operador.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <h2>Transcrição captada</h2>
+        <p id="operatorTranscript">
+          Nenhuma fala captada ainda.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <h2>Leitura heurística</h2>
+        <p id="operatorReading">
+          A leitura será consolidada após as 3 etapas.
+        </p>
+      </article>
+    </section>
+
+    <section class="hero-card">
+      <div class="hero-badge">Comando final</div>
+      <h2 class="panel-subtitle">Fechamento da avaliação</h2>
+      <p class="hero-subtitle">
+        Ao concluir as 3 etapas, escolha como deseja seguir.
+      </p>
+
+      <div class="hero-actions vertical top-gap">
+        <button class="btn btn-primary" id="btnConfirmAndFollow" type="button" disabled>
+          Estou de boa e seguir
+        </button>
+
+        <button class="btn btn-secondary" id="btnRedoOperator" type="button" disabled>
+          Refazer
+        </button>
+
+        <button class="btn btn-secondary" id="btnPsiQ" type="button" disabled>
+          PsiQ
+        </button>
+
+        <button class="btn btn-secondary" id="btnHealth" type="button" disabled>
+          Health
+        </button>
+
+        <button class="btn btn-secondary" id="btnHelp" type="button" disabled>
+          Ajuda
+        </button>
+      </div>
+    </section>
+
+    <section class="hero-card">
+      <div class="logs-header">
+        <div>
+          <div class="hero-badge">Logs temporários de configuração</div>
+          <h2 class="panel-subtitle">Aba de logs</h2>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn btn-secondary" id="btnToggleLogs" type="button">
+            Ocultar logs
+          </button>
+          <button class="btn btn-secondary" id="btnClearLogs" type="button">
+            Limpar logs
+          </button>
+        </div>
+      </div>
+
+      <div id="logsPanel" class="logs-panel">
+        <div class="log" id="logBox"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/operador-teste.js"></script>
+</body>
+</html>
