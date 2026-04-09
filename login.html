@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar • Elayon Presença</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="login">
+  <main class="app-shell">
+    <section class="form-card">
+      <div class="hero-badge">Acesso</div>
+      <h1 class="form-title">Entrar</h1>
+      <p class="form-subtitle">Use seu e-mail para acessar o Elayon Presença.</p>
+
+      <form id="loginForm" class="form-stack">
+        <label for="loginEmail">E-mail</label>
+        <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com">
+
+        <label for="loginPassword">Senha</label>
+        <input id="loginPassword" type="password" placeholder="sua senha">
+
+        <button class="btn btn-primary" type="submit">Entrar</button>
+      </form>
+
+      <div id="loginMessage" class="form-message">Auth ainda será conectada.</div>
+
+      <div class="hero-actions top-gap">
+        <a class="btn btn-secondary" href="cadastro.html">Criar acesso</a>
+        <a class="btn btn-secondary" href="index.html">Voltar</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
