@@ -3,8 +3,7 @@
 
   const ACCESS_KEY = "elayon_operator_access";
   // Já deixei evidente no código:
-  // esta chave controla a catraca do sistema.
-  // Quando approved = true, o painel libera as ferramentas Lion.
+  // esta chave controla a aprovação do operador e a liberação do painel.
 
   const btnStartOperator = document.getElementById("btnStartOperator");
   const btnStopOperator = document.getElementById("btnStopOperator");
@@ -31,13 +30,28 @@
   let recognition = null;
   let currentStep = 0;
   let isRunning = false;
+  let isSpeaking = false;
   let sessionTexts = ["", "", ""];
   let speechAvailable = false;
+  let speechSynthesisAvailable = "speechSynthesis" in window;
+  let lastError = null;
 
   function log(msg) {
     const t = new Date().toLocaleTimeString("pt-BR");
     logBox.textContent += `[${t}] ${msg}\n`;
     logBox.scrollTop = logBox.scrollHeight;
+    console.log("[OPERADOR]", msg);
+  }
+
+  function logError(context, error) {
+    const msg = error?.message || error?.error || String(error || "erro desconhecido");
+    lastError = msg;
+    log(`ERRO ${context}: ${msg}`);
+  }
+
+  function showUserError(text) {
+    operatorInstruction.textContent = text;
+    operatorSystemStatus.textContent = "Erro controlado";
   }
 
   function setAccessApproved(value) {
@@ -48,6 +62,7 @@
         updatedAt: new Date().toISOString()
       })
     );
+    log(`aprovação gravada: ${value}`);
   }
 
   function enableFinalCommands(enabled) {
@@ -65,80 +80,18 @@
     return "Boa noite";
   }
 
-  function speak(text, callback) {
-    if (!("speechSynthesis" in window)) {
-      log("ERRO: speechSynthesis indisponível");
-      if (callback) callback();
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "pt-BR";
-    utter.rate = 1;
-    utter.pitch = 1;
-    utter.volume = 1;
-
-    utter.onstart = () => {
-      operatorSystemStatus.textContent = "Falando";
-      log(`tts iniciou: ${text}`);
-    };
-
-    utter.onend = () => {
-      operatorSystemStatus.textContent = "Aguardando resposta";
-      log("tts finalizou");
-      if (callback) callback();
-    };
-
-    utter.onerror = (event) => {
-      log(`ERRO: tts ${event.error || "desconhecido"}`);
-      if (callback) callback();
-    };
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-  }
-
-  function beep() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.value = 880;
-      gain.gain.value = 0.05;
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.18);
-
-      osc.onended = () => {
-        ctx.close();
-      };
-
-      log("bip emitido");
-    } catch (error) {
-      log(`ERRO: bip ${error.message}`);
-    }
-  }
-
   function buildStepInstruction(step) {
     const greeting = getGreetingByHour();
 
     if (step === 1) {
-      return `${greeting}. Tudo certo pra começar? Vamos começar de forma simples. Diga seu nome e como você chega para esta atividade.`;
+      return `${greeting}. Tudo certo pra começar? Diga seu nome e como você chega para esta atividade.`;
     }
-
     if (step === 2) {
-      return "Agora a segunda etapa. Diga o que você precisa fazer agora, em poucas palavras.";
+      return "Segunda etapa. Diga o que você precisa fazer agora, em poucas palavras.";
     }
-
     if (step === 3) {
-      return "Terceira etapa. Conte de 1 a 10 em ritmo natural.";
+      return "Terceira etapa. Conte de um a dez em ritmo natural.";
     }
-
     return "Etapa não definida.";
   }
 
@@ -161,232 +114,84 @@
     return "Boa resposta inicial. Há sinal suficiente para seguir à próxima etapa do sistema.";
   }
 
-  function finishOperatorTest() {
+  function resetOperatorState() {
+    currentStep = 0;
     isRunning = false;
-    operatorSystemStatus.textContent = "Concluído";
-    operatorCurrentStep.textContent = "3 de 3";
-    operatorMicStatus.textContent = "Desligado";
-
-    const reading = buildHeuristicReading();
-    operatorReading.textContent = reading;
-    operatorInstruction.textContent =
-      "Avaliação concluída. Escolha como deseja seguir.";
-
-    enableFinalCommands(true);
-
-    log("3 etapas concluídas");
-    log(`leitura final: ${reading}`);
-
-    speak(
-      "Avaliação concluída. Escolha como deseja seguir. Obrigado pela sua presença no sistema Elayon.",
-      () => {
-        log("comando final habilitado");
-      }
-    );
-  }
-
-  function handleStepResult(transcript) {
-    sessionTexts[currentStep - 1] = transcript || "";
-    operatorTranscript.textContent = transcript || "Sem resposta captada.";
-    log(`texto captado na etapa ${currentStep}: ${transcript || "[vazio]"}`);
-
-    if (currentStep >= 3) {
-      finishOperatorTest();
-      return;
-    }
-
-    currentStep += 1;
-    operatorCurrentStep.textContent = `${currentStep} de 3`;
-
-    const nextInstruction = buildStepInstruction(currentStep);
-    operatorInstruction.textContent = nextInstruction;
-
-    setTimeout(() => {
-      speak(nextInstruction, () => {
-        setTimeout(() => {
-          beep();
-          startListening();
-        }, 400);
-      });
-    }, 1200);
-  }
-
-  function createRecognition() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SR) {
-      speechAvailable = false;
-      log("ERRO: reconhecimento de fala indisponível neste navegador");
-      return null;
-    }
-
-    speechAvailable = true;
-
-    const rec = new SR();
-    rec.lang = "pt-BR";
-    rec.continuous = false;
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-
-    rec.onstart = () => {
-      operatorMicStatus.textContent = "Ligado";
-      operatorSystemStatus.textContent = "Ouvindo";
-      log("speech recognition iniciou");
-    };
-
-    rec.onresult = (event) => {
-      const transcript = event.results?.[0]?.[0]?.transcript?.trim() || "";
-      log(`speech recognition recebeu: ${transcript || "[vazio]"}`);
-      handleStepResult(transcript);
-    };
-
-    rec.onerror = (event) => {
-      log(`ERRO: speech recognition ${event.error || "desconhecido"}`);
-      operatorMicStatus.textContent = "Erro";
-      operatorSystemStatus.textContent = "Erro na escuta";
-    };
-
-    rec.onend = () => {
-      operatorMicStatus.textContent = "Desligado";
-      if (isRunning) {
-        log("speech recognition encerrou");
-      }
-    };
-
-    return rec;
-  }
-
-  function startListening() {
-    if (!recognition) {
-      recognition = createRecognition();
-    }
-
-    if (!recognition) {
-      operatorInstruction.textContent =
-        "Reconhecimento de fala não disponível. Este teste precisa de navegador compatível.";
-      return;
-    }
-
-    try {
-      recognition.start();
-      log("escuta iniciada");
-    } catch (error) {
-      log(`ERRO: não foi possível iniciar escuta: ${error.message}`);
-    }
-  }
-
-  function startOperatorFlow() {
-    currentStep = 1;
-    isRunning = true;
+    isSpeaking = false;
     sessionTexts = ["", "", ""];
+    lastError = null;
+
+    operatorSystemStatus.textContent = "Aguardando";
+    operatorCurrentStep.textContent = "Nenhuma";
+    operatorMicStatus.textContent = "Desligado";
+    operatorInstruction.textContent = "Inicie a avaliação para começar a conferência do operador.";
+    operatorTranscript.textContent = "Nenhuma fala captada ainda.";
+    operatorReading.textContent = "A leitura será consolidada após as 3 etapas.";
     enableFinalCommands(false);
 
-    operatorCurrentStep.textContent = "1 de 3";
-    operatorSystemStatus.textContent = "Iniciando";
-    operatorTranscript.textContent = "Aguardando resposta da etapa 1...";
-    operatorReading.textContent = "Leitura em construção.";
-
-    const instruction = buildStepInstruction(1);
-    operatorInstruction.textContent = instruction;
-
-    log("fluxo do operador iniciado");
-    log(`speech available: ${speechAvailable}`);
-
-    speak(instruction, () => {
-      setTimeout(() => {
-        beep();
-        startListening();
-      }, 400);
-    });
-  }
-
-  function stopOperatorFlow() {
-    isRunning = false;
-
     try {
-      if (recognition) {
-        recognition.stop();
-      }
+      if (recognition) recognition.abort();
     } catch {}
 
-    window.speechSynthesis.cancel();
-
-    operatorSystemStatus.textContent = "Parado";
-    operatorMicStatus.textContent = "Desligado";
-    operatorInstruction.textContent =
-      "Interação interrompida. Você pode reiniciar quando quiser.";
-
-    log("interação parada manualmente");
-  }
-
-  async function hydrateUserContext() {
-    if (!supabase) {
-      log("ERRO: Supabase não conectado");
-      return;
+    if (speechSynthesisAvailable) {
+      window.speechSynthesis.cancel();
     }
 
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error || !data?.user) {
-      log("ERRO: usuário não autenticado");
-      window.location.href = "login.html";
-      return;
-    }
-
-    log(`usuário autenticado: ${data.user.email}`);
+    log("estado do operador resetado");
   }
 
-  btnStartOperator.addEventListener("click", () => {
-    startOperatorFlow();
-  });
+  function beep() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) {
+        log("bip indisponível neste navegador");
+        return;
+      }
 
-  btnStopOperator.addEventListener("click", () => {
-    stopOperatorFlow();
-  });
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-  btnConfirmAndFollow.addEventListener("click", () => {
-    setAccessApproved(true);
-    log("usuário aprovado manualmente para seguir");
-    window.location.href = "painel.html";
-  });
+      osc.type = "sine";
+      osc.frequency.value = 880;
+      gain.gain.value = 0.05;
 
-  btnRedoOperator.addEventListener("click", () => {
-    log("usuário escolheu refazer");
-    startOperatorFlow();
-  });
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-  btnPsiQ.addEventListener("click", () => {
-    log("encaminhamento PsiQ acionado");
-    alert("Encaminhamento para Elayon PsiQ.");
-  });
+      osc.start();
+      osc.stop(ctx.currentTime + 0.18);
 
-  btnHealth.addEventListener("click", () => {
-    log("encaminhamento Health acionado");
-    alert("Encaminhamento para Elayon Health.");
-  });
+      osc.onended = () => ctx.close();
+      log("bip emitido");
+    } catch (error) {
+      logError("bip", error);
+    }
+  }
 
-  btnHelp.addEventListener("click", () => {
-    log("pedido de ajuda acionado");
-    alert("Canal de ajuda acionado.");
-  });
+  function safeSpeak(text) {
+    return new Promise((resolve) => {
+      if (!speechSynthesisAvailable) {
+        log("speechSynthesis indisponível");
+        resolve(false);
+        return;
+      }
 
-  btnToggleLogs.addEventListener("click", () => {
-    const hidden = logsPanel.style.display === "none";
-    logsPanel.style.display = hidden ? "block" : "none";
-    btnToggleLogs.textContent = hidden ? "Ocultar logs" : "Mostrar logs";
-    log(hidden ? "logs exibidos" : "logs ocultados");
-  });
+      try {
+        window.speechSynthesis.cancel();
 
-  btnClearLogs.addEventListener("click", () => {
-    logBox.textContent = "";
-    log("logs limpos");
-  });
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "pt-BR";
+        utter.rate = 1;
+        utter.pitch = 1;
+        utter.volume = 1;
 
-  (async function init() {
-    log("operador-teste iniciado");
-    recognition = createRecognition();
-    await hydrateUserContext();
-    enableFinalCommands(false);
-    log("operador-teste pronto");
-  })();
-})();
+        utter.onstart = () => {
+          isSpeaking = true;
+          operatorSystemStatus.textContent = "Falando";
+          log(`tts iniciou: ${text}`);
+        };
+
+        utter.onend = () => {
+          isSpeaking = false;
+          operatorSystemStatus
