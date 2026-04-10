@@ -1,21 +1,30 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel • Elayon Presença</title>
-  <meta name="description" content="Painel do operador do Elayon Presença.">
+  <meta name="description" content="Painel inicial do operador no Elayon Presença.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="painel">
   <main class="app-shell">
+
+    <div style="margin-bottom:20px;">
+      <a href="https://elayon.space"
+         style="display:inline-block;background:#173b42;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;">
+        ← Voltar ao site
+      </a>
+    </div>
+
     <section class="hero-card">
       <div class="hero-badge">Painel do operador</div>
 
-      <h1 class="hero-title">Entrada pelo crivo do operador</h1>
+      <h1 class="hero-title">Entrada obrigatória antes das ferramentas</h1>
       <p class="hero-subtitle">
-        Antes de usar qualquer ferramenta da Lion, todo usuário precisa passar
-        pela avaliação inicial obrigatória do operador.
+        Toda pessoa que entra no sistema passa primeiro pelo crivo inicial do operador.
+        Essa etapa organiza a entrada, reduz ruído e prepara o melhor uso das ferramentas Lion.
       </p>
 
       <div class="hero-actions">
@@ -34,27 +43,25 @@
         <h2>Identificação</h2>
         <p><strong>Nome:</strong> <span id="userName">Carregando...</span></p>
         <p><strong>E-mail:</strong> <span id="userEmail">Carregando...</span></p>
+        <p><strong>Perfil:</strong> Operador / Usuário</p>
       </article>
 
       <article class="info-card">
         <h2>Status do sistema</h2>
         <p><strong>Sistema:</strong> <span id="systemStatus">ON</span></p>
-        <p><strong>Status de acesso:</strong> <span id="accessStatus">Pendente de avaliação</span></p>
+        <p><strong>Acesso:</strong> <span id="accessStatus">Pendente de avaliação</span></p>
+        <p><strong>Último estado:</strong> <span id="lastState">Aguardando primeira conferência</span></p>
       </article>
 
       <article class="info-card">
-        <h2>Avaliação obrigatória</h2>
-        <p id="evaluationText">
-          O acesso às ferramentas Lion será liberado após a conclusão da avaliação inicial.
-        </p>
+        <h2>Fluxo da avaliação</h2>
+        <p><strong>Etapa 1:</strong> apresentação inicial</p>
+        <p><strong>Etapa 2:</strong> objetivo imediato</p>
+        <p><strong>Etapa 3:</strong> contagem guiada</p>
 
         <div class="hero-actions vertical top-gap">
           <button class="btn btn-primary" id="btnAbrirOperador" type="button">
             Abrir teste do operador
-          </button>
-
-          <button class="btn btn-secondary" id="btnSimularAprovacao" type="button">
-            Simular aprovação
           </button>
         </div>
       </article>
@@ -62,7 +69,7 @@
       <article class="info-card lion-locked" id="lionToolsCard">
         <h2>Ferramentas Lion</h2>
         <p id="lionToolsText">
-          Ainda bloqueadas. Conclua a avaliação obrigatória para liberar o uso autodidata.
+          Ainda bloqueadas. O acesso será liberado após a conclusão da avaliação obrigatória.
         </p>
 
         <div class="hero-actions vertical top-gap">
@@ -102,6 +109,22 @@
         <div class="log" id="logBox"></div>
       </div>
     </section>
+
+    <!-- BLOCO DE NAVEGAÇÃO -->
+    <div style="border-top:1px solid #e4efef;margin-top:60px;padding-top:25px;text-align:center;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:16px;">
+        <a href="https://elayon.space" style="color:#173b42;text-decoration:none;font-weight:600;">← Voltar ao site</a>
+        <a href="https://elayon.space/contato/" style="color:#173b42;text-decoration:none;font-weight:600;">Contato</a>
+        <a href="https://elayon.space/faq/" style="color:#173b42;text-decoration:none;font-weight:600;">Suporte</a>
+        <a href="https://elayon.space/termos/" style="color:#173b42;text-decoration:none;font-weight:600;">Termos</a>
+        <a href="https://elayon.space/politica-privacidade/" style="color:#173b42;text-decoration:none;font-weight:600;">Privacidade</a>
+      </div>
+
+      <p style="color:#6b7f84;font-size:13px;margin:0;">
+        Suporte Elayon • interação consciente e uso responsável
+      </p>
+    </div>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -110,7 +133,6 @@
   <script src="js/painel.js"></script>
 </body>
 </html>
-
 
 
 <!-- BLOCO DE NAVEGAÇÃO ELAYON -->
