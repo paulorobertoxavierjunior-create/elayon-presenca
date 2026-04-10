@@ -3,24 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teste do Operador • Elayon Presença</title>
+  <title>Teste do operador • Elayon Presença</title>
   <meta name="description" content="Avaliação inicial obrigatória do operador no Elayon Presença.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="operador-teste">
   <main class="app-shell">
+
+    <div style="margin-bottom:20px;">
+      <a href="https://elayon.space"
+         style="display:inline-block;background:#173b42;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;">
+        ← Voltar ao site
+      </a>
+    </div>
+
     <section class="hero-card">
       <div class="hero-badge">Avaliação obrigatória</div>
 
       <h1 class="hero-title">Teste do operador</h1>
       <p class="hero-subtitle">
-        Antes de acessar as ferramentas Lion, todo usuário deve passar por esta
-        conferência inicial em 3 etapas.
+        Antes de acessar as ferramentas Lion, todo usuário deve passar por esta conferência inicial em 3 etapas.
       </p>
 
       <div class="hero-actions">
         <button class="btn btn-primary" id="btnStartOperator" type="button">
-          Ligar mic e iniciar
+          Iniciar teste
         </button>
 
         <button class="btn btn-secondary" id="btnStopOperator" type="button">
@@ -61,9 +68,32 @@
       </article>
     </section>
 
+    <section class="hero-card" id="responseConfirmCard" style="display:none;">
+      <div class="hero-badge">Confirmação da resposta</div>
+      <h2 class="panel-subtitle">Resposta captada</h2>
+      <p class="hero-subtitle">
+        Revise a resposta reconhecida e escolha como deseja seguir.
+      </p>
+
+      <div class="info-card" style="margin-top:16px;">
+        <h2>Texto reconhecido</h2>
+        <p id="operatorTranscriptPreview">—</p>
+      </div>
+
+      <div class="hero-actions top-gap">
+        <button class="btn btn-primary" id="btnConfirmResponse" type="button">
+          Confirmar envio
+        </button>
+
+        <button class="btn btn-secondary" id="btnRedoResponse" type="button">
+          Refazer resposta
+        </button>
+      </div>
+    </section>
+
     <section class="hero-card">
-      <div class="hero-badge">Comando final</div>
-      <h2 class="panel-subtitle">Fechamento da avaliação</h2>
+      <div class="hero-badge">Fechamento da avaliação</div>
+      <h2 class="panel-subtitle">Comando final</h2>
       <p class="hero-subtitle">
         Ao concluir as 3 etapas, escolha como deseja seguir.
       </p>
@@ -74,7 +104,7 @@
         </button>
 
         <button class="btn btn-secondary" id="btnRedoOperator" type="button" disabled>
-          Refazer
+          Refazer avaliação
         </button>
 
         <button class="btn btn-secondary" id="btnPsiQ" type="button" disabled>
@@ -112,6 +142,22 @@
         <div class="log" id="logBox"></div>
       </div>
     </section>
+
+    <!-- BLOCO DE NAVEGAÇÃO ELAYON -->
+    <div style="border-top:1px solid #e4efef;margin-top:60px;padding-top:25px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:16px;">
+        <a href="https://elayon.space" style="color:#173b42;text-decoration:none;font-weight:600;">← Voltar ao site</a>
+        <a href="https://elayon.space/contato/" style="color:#173b42;text-decoration:none;font-weight:600;">Contato</a>
+        <a href="https://elayon.space/faq/" style="color:#173b42;text-decoration:none;font-weight:600;">Suporte</a>
+        <a href="https://elayon.space/termos/" style="color:#173b42;text-decoration:none;font-weight:600;">Termos</a>
+        <a href="https://elayon.space/politica-privacidade/" style="color:#173b42;text-decoration:none;font-weight:600;">Privacidade</a>
+        <a href="login.html" style="color:#6ec1c8;text-decoration:none;font-weight:700;">Acesso</a>
+      </div>
+
+      <p style="color:#6b7f84;font-size:13px;margin:0 0 30px;">
+        Suporte Elayon • interação consciente e uso responsável
+      </p>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -120,48 +166,3 @@
   <script src="js/operador-teste.js"></script>
 </body>
 </html>
-
-
-
-<!-- BLOCO DE NAVEGAÇÃO ELAYON -->
-<div style="border-top:1px solid #e4efef;margin-top:60px;padding-top:25px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
-
-  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:16px;">
-
-    <a href="https://elayon.space"
-       style="color:#173b42;text-decoration:none;font-weight:600;">
-      ← Voltar ao site
-    </a>
-
-    <a href="https://elayon.space/contato/"
-       style="color:#173b42;text-decoration:none;font-weight:600;">
-      Contato
-    </a>
-
-    <a href="https://elayon.space/faq/"
-       style="color:#173b42;text-decoration:none;font-weight:600;">
-      Suporte
-    </a>
-
-    <a href="https://elayon.space/termos/"
-       style="color:#173b42;text-decoration:none;font-weight:600;">
-      Termos
-    </a>
-
-    <a href="https://elayon.space/politica-privacidade/"
-       style="color:#173b42;text-decoration:none;font-weight:600;">
-      Privacidade
-    </a>
-
-    <a href="login.html"
-       style="color:#6ec1c8;text-decoration:none;font-weight:700;">
-      Acesso
-    </a>
-
-  </div>
-
-  <p style="color:#6b7f84;font-size:13px;margin:0;">
-    Suporte Elayon • interação consciente e uso responsável
-  </p>
-
-</div>
