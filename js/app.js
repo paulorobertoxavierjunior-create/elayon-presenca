@@ -10,11 +10,23 @@
     return document.getElementById(id);
   }
 
-  function setMessage(id, text, isError = false) {
+  function setMessage(id, text, isError = false, isSuccess = false) {
     const el = $(id);
     if (!el) return;
+
     el.textContent = text || "";
-    el.style.color = isError ? "#b42318" : "#5a747a";
+    el.classList.remove("message-error", "message-success");
+
+    if (isError) el.classList.add("message-error");
+    if (isSuccess) el.classList.add("message-success");
+  }
+
+  function setButtonLoading(id, loading, normalText, loadingText) {
+    const btn = $(id);
+    if (!btn) return;
+
+    btn.disabled = loading;
+    btn.textContent = loading ? loadingText : normalText;
   }
 
   function saveAuthUser(user) {
@@ -62,11 +74,6 @@
     return allTrials[userId];
   }
 
-  function getTrialForUser(userId) {
-    const allTrials = getAllTrials();
-    return allTrials[userId] || null;
-  }
-
   function isTrialValid(trial) {
     if (!trial?.endsAt) return false;
     return new Date(trial.endsAt) > new Date();
@@ -80,7 +87,7 @@
   }
 
   async function guardProtectedPages() {
-    const protectedPages = ["painel", "presenca", "relatorio-lion", "manutencao"];
+    const protectedPages = ["painel", "presenca", "relatorio-lion", "manutencao", "operador-teste"];
     if (!protectedPages.includes(page)) return;
 
     const session = await getSession();
@@ -127,13 +134,25 @@
       const nome = $("signupName")?.value.trim();
       const email = $("signupEmail")?.value.trim();
       const password = $("signupPassword")?.value.trim();
+      const confirm = $("signupPasswordConfirm")?.value.trim();
 
-      if (!nome || !email || !password) {
+      if (!nome || !email || !password || !confirm) {
         setMessage("signupMessage", "Preencha todos os campos.", true);
         return;
       }
 
+      if (password !== confirm) {
+        setMessage("signupMessage", "As senhas não coincidem.", true);
+        return;
+      }
+
+      if (password.length < 6) {
+        setMessage("signupMessage", "A senha deve ter pelo menos 6 caracteres.", true);
+        return;
+      }
+
       setMessage("signupMessage", "Criando acesso...");
+      setButtonLoading("btnSignupSubmit", true, "Criar acesso", "Criando...");
 
       const redirectTo = "https://paulorobertoxavierjunior-create.github.io/elayon-presenca/login.html";
 
@@ -148,6 +167,7 @@
 
       if (error) {
         setMessage("signupMessage", error.message, true);
+        setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
         return;
       }
 
@@ -157,8 +177,16 @@
 
       setMessage(
         "signupMessage",
-        "Cadastro criado. Verifique seu e-mail para confirmar o acesso."
+        "Cadastro criado. Verifique seu e-mail para confirmar o acesso.",
+        false,
+        true
       );
+
+      setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
+
+      setTimeout(() => {
+        window.location.href = "obrigado-cadastro.html";
+      }, 900);
     });
   }
 
@@ -177,7 +205,8 @@
         return;
       }
 
-      setMessage("loginMessage", "Entrando...");
+      setMessage("loginMessage", "Validando acesso...");
+      setButtonLoading("btnLoginSubmit", true, "Entrar no sistema", "Entrando...");
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -185,16 +214,33 @@
       });
 
       if (error) {
-        setMessage("loginMessage", error.message, true);
+        setMessage(
+          "loginMessage",
+          "Não foi possível entrar com esses dados. Verifique seu e-mail e senha ou crie seu acesso.",
+          true
+        );
+        setButtonLoading("btnLoginSubmit", false, "Entrar no sistema", "Entrando...");
         return;
       }
 
-      if (data?.user?.id) {
-        ensureTrialForUser(data.user.id);
-        saveAuthUser(data.user);
+      if (!data?.user?.id) {
+        setMessage(
+          "loginMessage",
+          "Não foi possível concluir o login. Tente novamente.",
+          true
+        );
+        setButtonLoading("btnLoginSubmit", false, "Entrar no sistema", "Entrando...");
+        return;
       }
 
-      window.location.href = cfg.routes.painel;
+      ensureTrialForUser(data.user.id);
+      saveAuthUser(data.user);
+
+      setMessage("loginMessage", "Acesso confirmado. Entrando no painel...", false, true);
+
+      setTimeout(() => {
+        window.location.href = cfg.routes.painel;
+      }, 500);
     });
   }
 
@@ -205,7 +251,7 @@
     btn.addEventListener("click", async () => {
       await supabase.auth.signOut();
       clearAuthUser();
-      window.location.href = cfg.routes.index;
+      window.location.href = cfg.routes.login;
     });
   }
 
