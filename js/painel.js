@@ -1,18 +1,21 @@
 (function () {
   const supabase = window.ELAYON_SUPABASE || null;
-  const cfg = window.ELAYON_CONFIG || {};
+
+  const ACCESS_KEY = "elayon_operator_access";
+  // Já deixei evidente no código:
+  // esta chave guarda a aprovação temporária do operador.
+  // Quando approved = true, as ferramentas Lion são liberadas no painel.
 
   const userName = document.getElementById("userName");
   const userEmail = document.getElementById("userEmail");
   const systemStatus = document.getElementById("systemStatus");
   const accessStatus = document.getElementById("accessStatus");
-  const evaluationText = document.getElementById("evaluationText");
+  const lastState = document.getElementById("lastState");
   const lionToolsText = document.getElementById("lionToolsText");
   const lionToolsCard = document.getElementById("lionToolsCard");
 
   const btnIniciarAvaliacao = document.getElementById("btnIniciarAvaliacao");
   const btnAbrirOperador = document.getElementById("btnAbrirOperador");
-  const btnSimularAprovacao = document.getElementById("btnSimularAprovacao");
   const btnLogout = document.getElementById("btnLogout");
 
   const btnFalaLivre = document.getElementById("btnFalaLivre");
@@ -24,43 +27,10 @@
   const logsPanel = document.getElementById("logsPanel");
   const logBox = document.getElementById("logBox");
 
-  const ACCESS_KEY = "elayon_operator_access";
-
   function log(msg) {
     const t = new Date().toLocaleTimeString("pt-BR");
     logBox.textContent += `[${t}] ${msg}\n`;
     logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  function setLionLocked(locked) {
-    btnFalaLivre.disabled = locked;
-    btnTreinamentoVocal.disabled = locked;
-    btnRelatorioLion.disabled = locked;
-
-    if (locked) {
-      accessStatus.textContent = "Pendente de avaliação";
-      evaluationText.textContent =
-        "O acesso às ferramentas Lion será liberado após a conclusão da avaliação inicial.";
-      lionToolsText.textContent =
-        "Ainda bloqueadas. Conclua a avaliação obrigatória para liberar o uso autodidata.";
-      lionToolsCard.classList.add("lion-locked");
-      log("ferramentas Lion mantidas bloqueadas");
-    } else {
-      accessStatus.textContent = "Apto para seguir";
-      evaluationText.textContent =
-        "Avaliação inicial concluída. O uso autodidata foi liberado.";
-      lionToolsText.textContent =
-        "Ferramentas Lion liberadas para este operador.";
-      lionToolsCard.classList.remove("lion-locked");
-      log("ferramentas Lion liberadas");
-    }
-  }
-
-  function saveOperatorAccess(value) {
-    localStorage.setItem(ACCESS_KEY, JSON.stringify({
-      approved: value,
-      updatedAt: new Date().toISOString()
-    }));
   }
 
   function loadOperatorAccess() {
@@ -71,29 +41,50 @@
     }
   }
 
+  function setLionLocked(locked) {
+    btnFalaLivre.disabled = locked;
+    btnTreinamentoVocal.disabled = locked;
+    btnRelatorioLion.disabled = locked;
+
+    if (locked) {
+      accessStatus.textContent = "Pendente de avaliação";
+      lastState.textContent = "Aguardando primeira conferência";
+      lionToolsText.textContent =
+        "Ainda bloqueadas. O acesso será liberado após a conclusão da avaliação obrigatória.";
+      lionToolsCard.classList.add("lion-locked");
+      log("ferramentas Lion mantidas bloqueadas");
+    } else {
+      accessStatus.textContent = "Apto para seguir";
+      lastState.textContent = "Operador aprovado para uso";
+      lionToolsText.textContent =
+        "Ferramentas Lion liberadas para este usuário.";
+      lionToolsCard.classList.remove("lion-locked");
+      log("ferramentas Lion liberadas");
+    }
+  }
+
   async function hydrateUser() {
     if (!supabase) {
+      systemStatus.textContent = "OFF";
       userName.textContent = "Supabase não conectado";
       userEmail.textContent = "Supabase não conectado";
-      systemStatus.textContent = "OFF";
-      log("ERRO: Supabase não conectado no painel");
+      log("ERRO: Supabase não conectado");
       return;
     }
 
     const { data, error } = await supabase.auth.getUser();
 
     if (error || !data?.user) {
-      log("ERRO: usuário não autenticado no painel");
+      log("ERRO: usuário não autenticado");
       window.location.href = "login.html";
       return;
     }
 
     const user = data.user;
-    const nome = user.user_metadata?.nome || "Usuário";
-    userName.textContent = nome;
+    userName.textContent = user.user_metadata?.nome || "Usuário";
     userEmail.textContent = user.email || "—";
     systemStatus.textContent = "ON";
-    log(`usuário carregado: ${nome} <${user.email}>`);
+    log(`usuário carregado: ${user.email}`);
   }
 
   function bindActions() {
@@ -107,19 +98,11 @@
       window.location.href = "operador-teste.html";
     });
 
-    btnSimularAprovacao.addEventListener("click", () => {
-      log("simulação de aprovação acionada");
-      saveOperatorAccess(true);
-      setLionLocked(false);
-    });
-
     btnLogout.addEventListener("click", async () => {
       log("logout solicitado");
-
       if (supabase) {
         await supabase.auth.signOut();
       }
-
       window.location.href = "login.html";
     });
 
