@@ -196,29 +196,20 @@
       log("resposta signUp", { data, error });
 
       if (error) {
-        setMessage("signupMessage", error.message, true);
-        setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
-        return;
-      }
+  let msg = error.message || "Não foi possível criar o acesso agora.";
 
-      if (data?.user?.id) {
-        ensureTrialForUser(data.user.id);
-      }
-
-      setMessage(
-        "signupMessage",
-        "Cadastro criado. Verifique seu e-mail para confirmar o acesso.",
-        false,
-        true
-      );
-
-      setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
-
-      setTimeout(() => {
-        window.location.href = "obrigado-cadastro.html";
-      }, 900);
-    });
+  if (msg.toLowerCase().includes("email rate limit exceeded")) {
+    msg = "Muitas tentativas de envio foram feitas em pouco tempo. Aguarde um pouco e tente novamente.";
   }
+
+  if (msg.toLowerCase().includes("user already registered")) {
+    msg = "Este e-mail já está cadastrado. Tente entrar ou recuperar seu acesso.";
+  }
+
+  setMessage("signupMessage", msg, true);
+  setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
+  return;
+}
 
   async function bindLogin() {
     const form = $("loginForm");
