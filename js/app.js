@@ -1,13 +1,20 @@
 (function () {
   const cfg = window.ELAYON_CONFIG || {};
-  const page = document.body.dataset.page || "index";
-  const supabase = window.ELAYON_SUPABASE || null;
+  const page = document.body?.dataset?.page || "index";
 
   const trialKey = cfg.storageKeys?.trial || "elayon_trial";
   const authUserKey = cfg.storageKeys?.authUser || "elayon_auth_user";
 
   function $(id) {
     return document.getElementById(id);
+  }
+
+  function log(msg, data) {
+    if (data !== undefined) {
+      console.log(`[ELAYON] ${msg}`, data);
+    } else {
+      console.log(`[ELAYON] ${msg}`);
+    }
   }
 
   function setMessage(id, text, isError = false, isSuccess = false) {
@@ -27,6 +34,11 @@
 
     btn.disabled = loading;
     btn.textContent = loading ? loadingText : normalText;
+  }
+
+  function getSupabase() {
+    const client = window.ELAYON_SUPABASE || null;
+    return client;
   }
 
   function saveAuthUser(user) {
@@ -69,6 +81,7 @@
       };
 
       saveAllTrials(allTrials);
+      log("trial criado para usuário", { userId, endsAt: end.toISOString() });
     }
 
     return allTrials[userId];
@@ -80,10 +93,29 @@
   }
 
   async function getSession() {
+    const supabase = getSupabase();
     if (!supabase) return null;
+
     const { data, error } = await supabase.auth.getSession();
-    if (error) return null;
+    if (error) {
+      log("erro ao buscar sessão", error);
+      return null;
+    }
+
     return data?.session || null;
+  }
+
+  function hydratePainel(user, trial) {
+    const nome = user.user_metadata?.nome || "Usuário";
+    const expira = new Date(trial.endsAt).toLocaleString("pt-BR");
+
+    if ($("userGreeting")) {
+      $("userGreeting").textContent = `Olá, ${nome}. Seu acesso está ativo.`;
+    }
+
+    if ($("trialStatus")) {
+      $("trialStatus").textContent = `Seu uso gratuito está ativo até ${expira}.`;
+    }
   }
 
   async function guardProtectedPages() {
@@ -93,6 +125,7 @@
     const session = await getSession();
 
     if (!session?.user) {
+      log("página protegida sem sessão. redirecionando para login");
       window.location.href = cfg.routes.login;
       return;
     }
@@ -111,25 +144,20 @@
     }
   }
 
-  function hydratePainel(user, trial) {
-    const nome = user.user_metadata?.nome || "Usuário";
-    const expira = new Date(trial.endsAt).toLocaleString("pt-BR");
-
-    if ($("userGreeting")) {
-      $("userGreeting").textContent = `Olá, ${nome}. Seu acesso está ativo.`;
-    }
-
-    if ($("trialStatus")) {
-      $("trialStatus").textContent = `Seu uso gratuito está ativo até ${expira}.`;
-    }
-  }
-
   async function bindSignup() {
     const form = $("signupForm");
-    if (!form || !supabase) return;
+    if (!form) return;
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      setMessage("signupMessage", "Supabase não conectado. Verifique config.js e auth.js.", true);
+      log("signup sem supabase");
+      return;
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      log("submit de cadastro acionado");
 
       const nome = $("signupName")?.value.trim();
       const email = $("signupEmail")?.value.trim();
@@ -165,6 +193,8 @@
         }
       });
 
+      log("resposta signUp", { data, error });
+
       if (error) {
         setMessage("signupMessage", error.message, true);
         setButtonLoading("btnSignupSubmit", false, "Criar acesso", "Criando...");
@@ -192,10 +222,18 @@
 
   async function bindLogin() {
     const form = $("loginForm");
-    if (!form || !supabase) return;
+    if (!form) return;
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      setMessage("loginMessage", "Supabase não conectado. Verifique config.js e auth.js.", true);
+      log("login sem supabase");
+      return;
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      log("submit de login acionado");
 
       const email = $("loginEmail")?.value.trim();
       const password = $("loginPassword")?.value.trim();
@@ -212,6 +250,8 @@
         email,
         password
       });
+
+      log("resposta signInWithPassword", { data, error });
 
       if (error) {
         setMessage(
@@ -237,6 +277,7 @@
       saveAuthUser(data.user);
 
       setMessage("loginMessage", "Acesso confirmado. Entrando no painel...", false, true);
+      log("login bem-sucedido, redirecionando para painel");
 
       setTimeout(() => {
         window.location.href = cfg.routes.painel;
@@ -246,9 +287,16 @@
 
   async function bindLogout() {
     const btn = $("btnLogout");
-    if (!btn || !supabase) return;
+    if (!btn) return;
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      log("logout sem supabase");
+      return;
+    }
 
     btn.addEventListener("click", async () => {
+      log("logout acionado");
       await supabase.auth.signOut();
       clearAuthUser();
       window.location.href = cfg.routes.login;
@@ -276,16 +324,25 @@
 
     const session = await getSession();
     if (session?.user && page !== "index") {
+      log("usuário já logado, redirecionando para painel");
       window.location.href = cfg.routes.painel;
     }
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
+  async function init() {
+    log(`init app.js na página: ${page}`);
     bindPasswordToggles();
     await bindSignup();
     await bindLogin();
     await bindLogout();
     await redirectIfLoggedInOnAuthPages();
     await guardProtectedPages();
-  });
+    log("init concluído");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
