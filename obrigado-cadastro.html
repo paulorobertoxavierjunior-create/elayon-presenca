@@ -3,26 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro criado • Elayon Presença</title>
-  <meta name="description" content="Confirmação de criação de acesso no Elayon Presença.">
+  <title>Teste do operador • Elayon Presença</title>
+  <meta name="description" content="Avaliação inicial obrigatória do operador no Elayon Presença.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-page="operador-teste">
   <main class="app-shell">
-    <section class="form-card">
-      <div class="hero-badge">Cadastro concluído</div>
 
-      <h1 class="form-title">Verifique seu e-mail</h1>
-      <p class="form-subtitle">
-        Seu acesso foi criado com sucesso. Agora confirme seu e-mail para liberar a entrada no sistema.
+    <div style="margin-bottom:20px;">
+      <a href="https://elayon.space"
+         style="display:inline-block;background:#173b42;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;">
+        ← Voltar ao site
+      </a>
+    </div>
+
+    <section class="hero-card">
+      <div class="hero-badge">Avaliação obrigatória</div>
+
+      <h1 class="hero-title">Teste do operador</h1>
+      <p class="hero-subtitle">
+        Antes de acessar as ferramentas Lion, todo usuário deve passar por esta conferência inicial em 3 etapas.
       </p>
 
-      <div class="hero-actions top-gap">
-        <a class="btn btn-primary" href="login.html">Ir para login</a>
-        <a class="btn btn-secondary" href="index.html">Voltar</a>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="btnStartOperator" type="button">
+          Iniciar teste
+        </button>
+
+        <button class="btn btn-secondary" id="btnStopOperator" type="button">
+          Parar interação
+        </button>
+
+        <a class="btn btn-secondary" href="painel.html">Voltar</a>
       </div>
     </section>
 
+    <section class="grid-two">
+      <article class="info-card">
+        <h2>Status da sessão</h2>
+        <p><strong>Sistema:</strong> <span id="operatorSystemStatus">Aguardando</span></p>
+        <p><strong>Etapa atual:</strong> <span id="operatorCurrentStep">Nenhuma</span></p>
+        <p><strong>Microfone:</strong> <span id="operatorMicStatus">Desligado</span></p>
+      </article>
+
+      <article class="info-card">
+        <h2>Instrução atual</h2>
+        <p id="operatorInstruction">
+          Inicie a avaliação para começar a conferência do operador.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <h2>Transcrição captada</h2>
+        <p id="operatorTranscript">
+          Nenhuma fala captada ainda.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <h2>Leitura heurística</h2>
+        <p id="operatorReading">
+          A leitura será consolidada após as 3 etapas.
+        </p>
+      </article>
+    </section>
+
+    <section class="hero-card" id="responseConfirmCard" style="display:none;">
+      <div class="hero-badge">Confirmação da resposta</div>
+      <h2 class="panel-subtitle">Resposta captada</h2>
+      <p class="hero-subtitle">
+        Revise a resposta reconhecida e escolha como deseja seguir.
+      </p>
+
+      <div class="info-card" style="margin-top:16px;">
+        <h2>Texto reconhecido</h2>
+        <p id="operatorTranscriptPreview">—</p>
+      </div>
+
+      <div class="hero-actions top-gap">
+        <button class="btn btn-primary" id="btnConfirmResponse" type="button">
+          Confirmar envio
+        </button>
+
+        <button class="btn btn-secondary" id="btnRedoResponse" type="button">
+          Refazer resposta
+        </button>
+      </div>
+    </section>
+
+    <section class="hero-card">
+      <div class="hero-badge">Fechamento da avaliação</div>
+      <h2 class="panel-subtitle">Comando final</h2>
+      <p class="hero-subtitle">
+        Ao concluir as 3 etapas, escolha como deseja seguir.
+      </p>
+
+      <div class="hero-actions vertical top-gap">
+        <button class="btn btn-primary" id="btnConfirmAndFollow" type="button" disabled>
+          Estou de boa e seguir
+        </button>
+
+        <button class="btn btn-secondary" id="btnRedoOperator" type="button" disabled>
+          Refazer avaliação
+        </button>
+
+        <button class="btn btn-secondary" id="btnPsiQ" type="button" disabled>
+          PsiQ
+        </button>
+
+        <button class="btn btn-secondary" id="btnHealth" type="button" disabled>
+          Health
+        </button>
+
+        <button class="btn btn-secondary" id="btnHelp" type="button" disabled>
+          Ajuda
+        </button>
+      </div>
+    </section>
+
+    <section class="hero-card">
+      <div class="logs-header">
+        <div>
+          <div class="hero-badge">Logs temporários de configuração</div>
+          <h2 class="panel-subtitle">Aba de logs</h2>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn btn-secondary" id="btnToggleLogs" type="button">
+            Ocultar logs
+          </button>
+          <button class="btn btn-secondary" id="btnClearLogs" type="button">
+            Limpar logs
+          </button>
+        </div>
+      </div>
+
+      <div id="logsPanel" class="logs-panel">
+        <div class="log" id="logBox"></div>
+      </div>
+    </section>
+
+    <!-- BLOCO DE NAVEGAÇÃO ELAYON -->
     <div style="border-top:1px solid #e4efef;margin-top:60px;padding-top:25px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
       <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:16px;">
         <a href="https://elayon.space" style="color:#173b42;text-decoration:none;font-weight:600;">← Voltar ao site</a>
@@ -38,5 +159,10 @@
       </p>
     </div>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/operador-teste.js"></script>
 </body>
 </html>
