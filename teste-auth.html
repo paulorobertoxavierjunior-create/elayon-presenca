@@ -1,300 +1,155 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teste Auth Supabase • Elayon</title>
-  <style>
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      background:#f4f8f9;
-      color:#173b42;
-      margin:0;
-      padding:24px;
-    }
-    .wrap{
-      max-width:900px;
-      margin:0 auto;
-      background:#fff;
-      border-radius:18px;
-      padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.06);
-    }
-    h1{margin-top:0}
-    .row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-bottom:16px;
-    }
-    input{
-      flex:1 1 260px;
-      padding:12px;
-      border:1px solid #cfe2e7;
-      border-radius:10px;
-      font-size:16px;
-    }
-    button{
-      padding:12px 16px;
-      border:none;
-      border-radius:10px;
-      background:#173b42;
-      color:#fff;
-      font-weight:700;
-      cursor:pointer;
-    }
-    button.secondary{
-      background:#6ec1c8;
-      color:#fff;
-    }
-    .status{
-      margin:12px 0;
-      padding:12px;
-      border-radius:10px;
-      background:#f7fbfc;
-      border:1px solid #e4efef;
-    }
-    pre{
-      background:#081217;
-      color:#9cff9c;
-      padding:16px;
-      border-radius:12px;
-      min-height:260px;
-      max-height:420px;
-      overflow:auto;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-size:12px;
-    }
-    .muted{color:#5d767b}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELAYON - Central de Conexão</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; padding: 20px; line-height: 1.4; }
+        .config-panel { border: 2px solid #00ff41; padding: 20px; margin-bottom: 20px; background: #1a1a1a; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #fff; }
+        input { width: 100%; background: #000; border: 1px solid #00ff41; color: #00ff41; padding: 10px; box-sizing: border-box; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { background: #00ff41; color: #000; border: none; padding: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        button:hover { background: #fff; }
+        button.danger { background: #ff4444; color: #fff; }
+        #log-window { background: #000; border: 1px solid #444; height: 400px; overflow-y: auto; padding: 15px; font-size: 13px; color: #00d2ff; }
+        .log-entry { margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px; }
+        .err { color: #ff4444; font-weight: bold; }
+        .success { color: #00ff41; }
+        .highlight { color: #ff00ff; }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Teste completo do Supabase</h1>
-    <p class="muted">
-      Este teste valida conexão, criação de conta, login, leitura de sessão e logout,
-      sem depender do restante do sistema.
-    </p>
 
-    <div class="row">
-      <input id="email" type="email" placeholder="Digite um e-mail de teste">
-      <input id="senha" type="password" placeholder="Digite uma senha">
+    <h2>[ELAYON PRESENÇA] - TESTE DE FLUXO E CONEXÃO</h2>
+
+    <div class="config-panel">
+        <div class="input-group">
+            <label>SUPABASE_PROJECT_URL</label>
+            <input type="text" id="url" value="https://eudcjihffrfmhzmfwtlg.supabase.co">
+        </div>
+        <div class="input-group">
+            <label>SUPABASE_ANON_KEY</label>
+            <input type="text" id="anon_key" placeholder="Cole aqui sua chave pública (anon key)">
+        </div>
+        <div class="input-group">
+            <label>EMAIL PARA TESTE (Crie um novo para cada teste)</label>
+            <input type="email" id="test_email" placeholder="ex: teste1@elayon.com">
+        </div>
+        <div class="input-group">
+            <label>SENHA PARA TESTE</label>
+            <input type="password" id="test_pass" value="Elayon@2024">
+        </div>
+        
+        <div class="controls">
+            <button onclick="initSupabase()">1. Inicializar/Testar Conexão</button>
+            <button onclick="runSignUp()">2. Criar Conta (Simular Fluxo)</button>
+            <button onclick="runSignIn()">3. Testar Login (Pós-Confirmação)</button>
+            <button onclick="checkSession()">4. Verificar Sessão</button>
+            <button onclick="runSignOut()" class="danger">5. Limpar Sessão (Logout)</button>
+            <button onclick="clearLogs()" style="background: #444; color: #fff;">Limpar Logs</button>
+        </div>
     </div>
 
-    <div class="row">
-      <button id="btnConexao" type="button">1. Testar conexão</button>
-      <button id="btnCriar" type="button">2. Criar conta</button>
-      <button id="btnLogin" type="button">3. Fazer login</button>
-      <button id="btnSessao" type="button" class="secondary">4. Ler sessão</button>
-      <button id="btnLogout" type="button" class="secondary">5. Logout</button>
-      <button id="btnLimpar" type="button" class="secondary">Limpar log</button>
-    </div>
+    <div id="log-window">--- Aguardando Inicialização ---</div>
 
-    <div class="status" id="statusBox">Aguardando teste.</div>
+    <script>
+        let supabaseClient = null;
+        const logWindow = document.getElementById('log-window');
 
-    <pre id="logBox">Logs:</pre>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://eudcjihffrfmhzmfwtlg.supabase.co";
-    const SUPABASE_ANON_KEY = "COLE_AQUI_A_ANON_KEY_COMPLETA";
-
-    const statusBox = document.getElementById("statusBox");
-    const logBox = document.getElementById("logBox");
-    const emailEl = document.getElementById("email");
-    const senhaEl = document.getElementById("senha");
-
-    function setStatus(text){
-      statusBox.textContent = text;
-    }
-
-    function log(msg, data){
-      const time = new Date().toLocaleTimeString("pt-BR");
-      let line = `[${time}] ${msg}`;
-      if (data !== undefined) {
-        try {
-          line += "\\n" + JSON.stringify(data, null, 2);
-        } catch(e) {
-          line += "\\n" + String(data);
-        }
-      }
-      logBox.textContent += "\\n\\n" + line;
-      logBox.scrollTop = logBox.scrollHeight;
-      console.log("[TESTE-AUTH]", msg, data ?? "");
-    }
-
-    window.onerror = function(message, source, lineno, colno, error){
-      setStatus("Erro de JavaScript detectado.");
-      log("ERRO JS", { message, source, lineno, colno, error: String(error || "") });
-    };
-
-    if (!window.supabase || !window.supabase.createClient) {
-      setStatus("SDK do Supabase não carregou.");
-      log("SDK do Supabase não carregou.");
-    }
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    log("Cliente Supabase criado.", { SUPABASE_URL });
-
-    async function testarConexao() {
-      setStatus("Testando conexão...");
-      log("=== TESTE CONEXÃO ===");
-
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        log("Resposta getSession", { data, error });
-
-        if (error) {
-          setStatus("Conexão com erro.");
-          alert("Erro na conexão: " + error.message);
-          return;
+        function log(msg, type = '') {
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${time}] ${msg}`;
+            logWindow.prepend(entry);
+            console.log(`[${time}]`, msg);
         }
 
-        setStatus("Conexão OK.");
-        alert("Conexão com Supabase OK.");
-      } catch (e) {
-        setStatus("Falha no teste de conexão.");
-        log("Exceção no teste de conexão", String(e));
-        alert("Falha no teste de conexão.");
-      }
-    }
+        function clearLogs() { logWindow.innerHTML = '--- Logs Limpos ---'; }
 
-    async function criarConta() {
-      setStatus("Tentando criar conta...");
-      log("=== CRIAR CONTA ===");
+        function initSupabase() {
+            const url = document.getElementById('url').value;
+            const key = document.getElementById('anon_key').value;
 
-      const email = emailEl.value.trim();
-      const senha = senhaEl.value.trim();
+            if (!key) {
+                log("ERRO: Você precisa colar a ANON KEY!", "err");
+                return;
+            }
 
-      if (!email || !senha) {
-        setStatus("Preencha e-mail e senha.");
-        alert("Preencha e-mail e senha.");
-        log("Validação falhou: campos vazios.");
-        return;
-      }
-
-      const redirectTo = window.location.origin + "/elayon-presenca/login.html";
-      log("Payload de cadastro", { email, redirectTo });
-
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password: senha,
-          options: { emailRedirectTo: redirectTo }
-        });
-
-        log("Resposta signUp", { data, error });
-
-        if (error) {
-          setStatus("Erro ao criar conta.");
-          alert("Erro ao criar conta: " + error.message);
-          return;
+            try {
+                supabaseClient = supabase.createClient(url, key);
+                log("Supabase inicializado localmente no navegador.", "success");
+                log("DICA: Tente realizar uma operação para validar a chave contra o servidor.");
+            } catch (e) {
+                log("Falha crítica na inicialização: " + e.message, "err");
+            }
         }
 
-        setStatus("Conta criada. Verifique o e-mail.");
-        alert("Conta criada. Verifique o e-mail de confirmação.");
-      } catch (e) {
-        setStatus("Exceção ao criar conta.");
-        log("Exceção em signUp", String(e));
-        alert("Falha ao criar conta.");
-      }
-    }
+        async function runSignUp() {
+            if (!supabaseClient) return log("Inicialize primeiro!", "err");
+            const email = document.getElementById('test_email').value;
+            const password = document.getElementById('test_pass').value;
 
-    async function fazerLogin() {
-      setStatus("Tentando login...");
-      log("=== LOGIN ===");
+            log(`Iniciando fluxo de cadastro para: <span class="highlight">${email}</span>`);
+            
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    emailRedirectTo: window.location.href // Volta para esta página após confirmar
+                }
+            });
 
-      const email = emailEl.value.trim();
-      const senha = senhaEl.value.trim();
-
-      if (!email || !senha) {
-        setStatus("Preencha e-mail e senha.");
-        alert("Preencha e-mail e senha.");
-        log("Validação falhou: campos vazios no login.");
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password: senha
-        });
-
-        log("Resposta signInWithPassword", { data, error });
-
-        if (error) {
-          setStatus("Erro no login.");
-          alert("Erro no login: " + error.message);
-          return;
+            if (error) {
+                log("ERRO NO CADASTRO: " + error.message, "err");
+                if(error.status === 429) log("⚠️ RATE LIMIT: O Supabase bloqueou por excesso de tentativas. Aguarde.", "err");
+            } else {
+                log("CADASTRO REALIZADO COM SUCESSO!", "success");
+                log("ID do Usuário: " + data.user.id);
+                log("ESTADO: Esperando confirmação por e-mail (Verifique sua caixa de entrada).", "highlight");
+            }
         }
 
-        setStatus("Login OK.");
-        alert("Login OK.");
-      } catch (e) {
-        setStatus("Exceção no login.");
-        log("Exceção em login", String(e));
-        alert("Falha no login.");
-      }
-    }
+        async function runSignIn() {
+            if (!supabaseClient) return log("Inicialize primeiro!", "err");
+            const email = document.getElementById('test_email').value;
+            const password = document.getElementById('test_pass').value;
 
-    async function lerSessao() {
-      setStatus("Lendo sessão...");
-      log("=== LER SESSÃO ===");
+            log(`Tentando Login Manual: ${email}...`);
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        log("Sessão atual", { data, error });
-
-        if (error) {
-          setStatus("Erro ao ler sessão.");
-          alert("Erro ao ler sessão: " + error.message);
-          return;
+            if (error) {
+                log("ERRO NO LOGIN: " + error.message, "err");
+                log("Lembrete: O login só funciona após você clicar no link do e-mail.", "highlight");
+            } else {
+                log("LOGIN BEM-SUCEDIDO! Usuário autenticado.", "success");
+                log("JWT Token gerado e armazenado no LocalStorage.");
+            }
         }
 
-        const hasSession = !!data?.session;
-        setStatus(hasSession ? "Sessão encontrada." : "Sem sessão ativa.");
-        alert(hasSession ? "Sessão encontrada." : "Sem sessão ativa.");
-      } catch (e) {
-        setStatus("Exceção ao ler sessão.");
-        log("Exceção em getSession", String(e));
-        alert("Falha ao ler sessão.");
-      }
-    }
-
-    async function fazerLogout() {
-      setStatus("Executando logout...");
-      log("=== LOGOUT ===");
-
-      try {
-        const { error } = await supabase.auth.signOut();
-        log("Resposta signOut", { error });
-
-        if (error) {
-          setStatus("Erro no logout.");
-          alert("Erro no logout: " + error.message);
-          return;
+        async function checkSession() {
+            if (!supabaseClient) return log("Inicialize primeiro!", "err");
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            
+            if (session) {
+                log("SESSÃO ATIVA encontrada!", "success");
+                log("Usuário: " + session.user.email);
+                log("Expira em: " + new Date(session.expires_at * 1000).toLocaleString());
+            } else {
+                log("Nenhuma sessão ativa no navegador.", "highlight");
+            }
         }
 
-        setStatus("Logout OK.");
-        alert("Logout OK.");
-      } catch (e) {
-        setStatus("Exceção no logout.");
-        log("Exceção em signOut", String(e));
-        alert("Falha no logout.");
-      }
-    }
-
-    document.getElementById("btnConexao").addEventListener("click", testarConexao);
-    document.getElementById("btnCriar").addEventListener("click", criarConta);
-    document.getElementById("btnLogin").addEventListener("click", fazerLogin);
-    document.getElementById("btnSessao").addEventListener("click", lerSessao);
-    document.getElementById("btnLogout").addEventListener("click", fazerLogout);
-    document.getElementById("btnLimpar").addEventListener("click", () => {
-      logBox.textContent = "Logs:";
-      setStatus("Log limpo.");
-    });
-  </script>
+        async function runSignOut() {
+            if (!supabaseClient) return log("Inicialize primeiro!", "err");
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) log("Erro ao sair: " + error.message, "err");
+            else log("Logout efetuado. LocalStorage limpo.");
+        }
+    </script>
 </body>
 </html>
