@@ -1,6 +1,3 @@
-console.log("JS CARREGOU");
-alert("JS OK");
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,7 +10,6 @@ alert("JS OK");
 <body data-page="cadastro">
   <main class="app-shell">
     <section class="form-card">
-
       <h1>Criar acesso</h1>
 
       <form id="signupForm">
@@ -22,26 +18,23 @@ alert("JS OK");
 
         <div>
           <input id="signupPassword" type="password" placeholder="Senha" required>
-          <button type="button" onclick="toggle('signupPassword')">👁</button>
+          <button type="button" onclick="togglePassword('signupPassword')">👁</button>
         </div>
 
         <div>
           <input id="signupPasswordConfirm" type="password" placeholder="Confirmar senha" required>
-          <button type="button" onclick="toggle('signupPasswordConfirm')">👁</button>
+          <button type="button" onclick="togglePassword('signupPasswordConfirm')">👁</button>
         </div>
 
-        <button type="submit">Criar acesso</button>
+        <button id="btnSignup" type="submit">Criar acesso</button>
       </form>
 
       <p id="signupMessage">Aguardando...</p>
 
-      <pre id="debugBox" style="font-size:11px;background:#111;color:#0f0;padding:10px;margin-top:20px;max-height:200px;overflow:auto;">
-Logs:
-</pre>
+      <pre id="debugBox" style="font-size:11px;background:#111;color:#0f0;padding:10px;margin-top:20px;max-height:220px;overflow:auto;">Logs:</pre>
 
       <br>
       <a href="login.html">Já tenho acesso</a>
-
     </section>
   </main>
 
@@ -49,40 +42,67 @@ Logs:
 
   <script>
     const DEBUG = document.getElementById("debugBox");
+    const signupMessage = document.getElementById("signupMessage");
+    const signupForm = document.getElementById("signupForm");
 
     function log(msg) {
-      console.log(msg);
-      DEBUG.textContent += "\n" + JSON.stringify(msg, null, 2);
+      console.log("[CADASTRO]", msg);
+      DEBUG.textContent += "\n" + (typeof msg === "string" ? msg : JSON.stringify(msg, null, 2));
     }
 
-    function toggle(id) {
+    function togglePassword(id) {
       const input = document.getElementById(id);
+      if (!input) return;
       input.type = input.type === "password" ? "text" : "password";
+    }
+
+    window.onerror = function (msg, url, line) {
+      log("ERRO JS: " + msg + " | linha: " + line);
+    };
+
+    console.log("JS CARREGOU");
+    alert("JS OK");
+    log("JS CARREGOU");
+
+    if (!window.supabase || !window.supabase.createClient) {
+      log("SDK do Supabase NÃO carregou");
+      signupMessage.textContent = "Falha ao carregar o SDK do Supabase.";
     }
 
     const supabase = window.supabase.createClient(
       "https://eudcjihffrfmhzmfwtlg.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      "COLE_AQUI_A_ANON_KEY_COMPLETA"
     );
 
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    log("Cliente Supabase criado");
+
+    signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      log("INICIO SIGNUP");
+      alert("SUBMIT DISPAROU");
+      log("SUBMIT DISPAROU");
 
-      const nome = signupName.value;
-      const email = signupEmail.value;
-      const password = signupPassword.value;
-      const confirm = signupPasswordConfirm.value;
+      const nome = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+      const confirm = document.getElementById("signupPasswordConfirm").value.trim();
+
+      if (!nome || !email || !password || !confirm) {
+        signupMessage.textContent = "Preencha todos os campos.";
+        log("Validação falhou: campos vazios");
+        return;
+      }
 
       if (password !== confirm) {
-        signupMessage.textContent = "Senhas não coincidem";
+        signupMessage.textContent = "Senhas não coincidem.";
+        log("Validação falhou: senhas não coincidem");
         return;
       }
 
       const redirectTo = "https://paulorobertoxavierjunior-create.github.io/elayon-presenca/login.html";
-
       log({ nome, email, redirectTo });
+
+      signupMessage.textContent = "Criando acesso...";
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -96,11 +116,22 @@ Logs:
       log({ data, error });
 
       if (error) {
-        signupMessage.textContent = error.message;
+        let msg = error.message || "Erro ao criar acesso.";
+
+        if (msg.toLowerCase().includes("email rate limit exceeded")) {
+          msg = "Muitas tentativas de envio foram feitas em pouco tempo. Aguarde um pouco e tente novamente.";
+        }
+
+        if (msg.toLowerCase().includes("user already registered")) {
+          msg = "Este e-mail já está cadastrado. Tente entrar no sistema.";
+        }
+
+        signupMessage.textContent = msg;
         return;
       }
 
       signupMessage.textContent = "Conta criada. Verifique seu e-mail.";
+      log("Conta criada com sucesso. Redirecionando para obrigado-cadastro.html");
 
       setTimeout(() => {
         window.location.href = "obrigado-cadastro.html";
