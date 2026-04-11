@@ -4,143 +4,105 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar acesso • Elayon Presença</title>
-  <meta name="description" content="Crie sua conta no Elayon Presença e inicie seu período gratuito.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body data-page="cadastro">
   <main class="app-shell">
     <section class="form-card">
-      <div class="hero-badge">Cadastro</div>
 
-      <h1 class="form-title">Criar acesso</h1>
-      <p class="form-subtitle">
-        Comece seu período inicial de uso e prepare sua entrada no Elayon Presença.
-      </p>
+      <h1>Criar acesso</h1>
 
-      <form id="signupForm" class="form-stack" novalidate>
-        <label for="signupName">Nome</label>
-        <input
-          id="signupName"
-          name="signupName"
-          type="text"
-          placeholder="Seu nome"
-          autocomplete="name"
-          required
-        >
+      <form id="signupForm">
+        <input id="signupName" type="text" placeholder="Seu nome" required>
+        <input id="signupEmail" type="email" placeholder="E-mail" required>
 
-        <label for="signupEmail">E-mail</label>
-        <input
-          id="signupEmail"
-          name="signupEmail"
-          type="email"
-          placeholder="seuemail@exemplo.com"
-          autocomplete="email"
-          required
-        >
-
-        <label for="signupPassword">Senha</label>
-        <div class="password-wrap">
-          <input
-            id="signupPassword"
-            name="signupPassword"
-            type="password"
-            placeholder="Crie sua senha"
-            autocomplete="new-password"
-            required
-          >
-          <button
-            type="button"
-            class="toggle-password"
-            data-target="signupPassword"
-            aria-label="Mostrar ou ocultar senha"
-          >
-            👁
-          </button>
+        <div>
+          <input id="signupPassword" type="password" placeholder="Senha" required>
+          <button type="button" onclick="toggle('signupPassword')">👁</button>
         </div>
 
-        <label for="signupPasswordConfirm">Confirmar senha</label>
-        <div class="password-wrap">
-          <input
-            id="signupPasswordConfirm"
-            name="signupPasswordConfirm"
-            type="password"
-            placeholder="Repita sua senha"
-            autocomplete="new-password"
-            required
-          >
-          <button
-            type="button"
-            class="toggle-password"
-            data-target="signupPasswordConfirm"
-            aria-label="Mostrar ou ocultar confirmação de senha"
-          >
-            👁
-          </button>
+        <div>
+          <input id="signupPasswordConfirm" type="password" placeholder="Confirmar senha" required>
+          <button type="button" onclick="toggle('signupPasswordConfirm')">👁</button>
         </div>
 
-        <button class="btn btn-primary" id="btnSignupSubmit" type="submit">
-          Criar meu acesso
-        </button>
+        <button type="submit">Criar acesso</button>
       </form>
 
-      <div id="signupMessage" class="form-message">
-        Aguardando criação de acesso.
-      </div>
+      <p id="signupMessage">Aguardando...</p>
 
-      <div class="hero-actions top-gap">
-        <a class="btn btn-secondary" href="login.html">Já tenho acesso</a>
-        <a class="btn btn-secondary" href="index.html">Voltar</a>
-      </div>
+      <pre id="debugBox" style="font-size:11px;background:#111;color:#0f0;padding:10px;margin-top:20px;max-height:200px;overflow:auto;">
+Logs:
+</pre>
 
-      <div class="hero-links top-gap">
-        <a href="index.html">Ir para a página inicial</a>
-      </div>
+      <br>
+      <a href="login.html">Já tenho acesso</a>
+
     </section>
-
-    <!-- BLOCO DE NAVEGAÇÃO ELAYON -->
-    <div style="border-top:1px solid #e4efef;margin-top:60px;padding-top:25px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:16px;">
-
-        <a href="https://elayon.space"
-           style="color:#173b42;text-decoration:none;font-weight:600;">
-          ← Voltar ao site
-        </a>
-
-        <a href="https://elayon.space/contato/"
-           style="color:#173b42;text-decoration:none;font-weight:600;">
-          Contato
-        </a>
-
-        <a href="https://elayon.space/faq/"
-           style="color:#173b42;text-decoration:none;font-weight:600;">
-          Suporte
-        </a>
-
-        <a href="https://elayon.space/termos/"
-           style="color:#173b42;text-decoration:none;font-weight:600;">
-          Termos
-        </a>
-
-        <a href="https://elayon.space/politica-privacidade/"
-           style="color:#173b42;text-decoration:none;font-weight:600;">
-          Privacidade
-        </a>
-
-        <a href="login.html"
-           style="color:#6ec1c8;text-decoration:none;font-weight:700;">
-          Acesso
-        </a>
-      </div>
-
-      <p style="color:#6b7f84;font-size:13px;margin:0 0 30px;">
-        Suporte Elayon • interação consciente e uso responsável
-      </p>
-    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/app.js"></script>
+
+  <script>
+    const DEBUG = document.getElementById("debugBox");
+
+    function log(msg) {
+      console.log(msg);
+      DEBUG.textContent += "\n" + JSON.stringify(msg, null, 2);
+    }
+
+    function toggle(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    const supabase = window.supabase.createClient(
+      "https://eudcjihffrfmhzmfwtlg.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    );
+
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      log("INICIO SIGNUP");
+
+      const nome = signupName.value;
+      const email = signupEmail.value;
+      const password = signupPassword.value;
+      const confirm = signupPasswordConfirm.value;
+
+      if (password !== confirm) {
+        signupMessage.textContent = "Senhas não coincidem";
+        return;
+      }
+
+      const redirectTo = "https://paulorobertoxavierjunior-create.github.io/elayon-presenca/login.html";
+
+      log({ nome, email, redirectTo });
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectTo,
+          data: { nome }
+        }
+      });
+
+      log({ data, error });
+
+      if (error) {
+        signupMessage.textContent = error.message;
+        return;
+      }
+
+      signupMessage.textContent = "Conta criada. Verifique seu e-mail.";
+
+      setTimeout(() => {
+        window.location.href = "obrigado-cadastro.html";
+      }, 1000);
+    });
+  </script>
 </body>
 </html>
