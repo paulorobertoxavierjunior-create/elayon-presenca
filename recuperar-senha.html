@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar senha • Elayon Presença</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body data-page="recuperar">
+  <main class="app-shell">
+    <section class="form-card">
+
+      <div class="hero-badge">Recuperação</div>
+
+      <h1 class="form-title">Recuperar senha</h1>
+
+      <p class="form-subtitle">
+        Informe seu e-mail para receber o link de redefinição.
+      </p>
+
+      <form id="recoverForm">
+        <input id="recoverEmail" type="email" placeholder="Seu e-mail" required>
+        <button class="btn btn-primary" type="submit">Enviar</button>
+      </form>
+
+      <p id="recoverMessage" class="form-message"></p>
+
+      <div class="hero-actions top-gap">
+        <a class="btn btn-secondary" href="login.html">Voltar para login</a>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/auth-flow.js"></script>
+</body>
+</html>
