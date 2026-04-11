@@ -1,140 +1,131 @@
 /* ============================================================
-   ELAYON AUTH FLOW - ESTABILIZADO
+   ELAYON AUTH FLOW - PRODUÇÃO ESTABILIZADA
    ============================================================ */
 
 const DEBUG = (msg) => {
-  console.log("[ELAYON AUTH]", msg);
-  const debugBox = document.getElementById("debugBox");
-  if (debugBox) {
-    const time = new Date().toLocaleTimeString();
-    debugBox.innerText += `\n[${time}] ${typeof msg === 'object' ? JSON.stringify(msg) : msg}`;
-  }
+    console.log("[ELAYON AUTH]", msg);
+    const debugBox = document.getElementById("debugBox");
+    if (debugBox) {
+        const time = new Date().toLocaleTimeString();
+        debugBox.innerText += `\n[${time}] ${typeof msg === 'object' ? JSON.stringify(msg) : msg}`;
+    }
 };
 
+// Configurações extraídas do seu teste bem-sucedido
 const SUPABASE_URL = "https://eudcjihffrfmhzmfwtlg.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0"; // <-- Troque pela sua chave!
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0";
 
-// Inicialização segura
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const page = document.body.dataset.page;
-  DEBUG("Página detectada: " + page);
+    const page = document.body.dataset.page;
+    DEBUG("Página carregada: " + page);
 
-  // Inicializa os olhos (mostrar/ocultar senha) em qualquer página que tenha
-  initTogglePassword();
+    // Inicializa comportamentos de UI (olho da senha)
+    initPasswordToggles();
 
-  if (page === "cadastro") initCadastro();
-  if (page === "login") initLogin();
-  if (page === "recuperar") initRecuperar();
+    if (page === "cadastro") initCadastro();
+    if (page === "login") initLogin();
 });
 
-/* ================== UTILITÁRIOS ================== */
-function initTogglePassword() {
-  document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', () => {
-      const targetId = button.getAttribute('data-target');
-      const input = document.getElementById(targetId);
-      if (input) {
-        input.type = input.type === 'password' ? 'text' : 'password';
-        button.innerText = input.type === 'password' ? '👁' : '🙈';
-      }
+/* --- UI HELPERS --- */
+function initPasswordToggles() {
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            if (input) {
+                input.type = input.type === 'password' ? 'text' : 'password';
+                btn.innerText = input.type === 'password' ? '👁' : '🙈';
+            }
+        });
     });
-  });
 }
 
-/* ================== CADASTRO ================== */
+/* --- FLUXO DE CADASTRO --- */
 function initCadastro() {
-  const form = document.getElementById("signupForm");
-  const msg = document.getElementById("signupMessage");
+    const form = document.getElementById("signupForm");
+    const msg = document.getElementById("signupMessage");
 
-  if (!form) return;
+    if (!form) return;
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault(); // GARANTE QUE NÃO DÊ REFRESH
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // CRÍTICO: Impede o refresh da página
+        
+        // Captura explícita dos valores no momento do clique
+        const nome = document.getElementById("signupName").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        const confirm = document.getElementById("signupPasswordConfirm").value;
+        const btn = document.getElementById("btnSignupSubmit");
 
-    // Captura manual dos inputs para evitar erro de referência
-    const nomeInput = document.getElementById("signupName");
-    const emailInput = document.getElementById("signupEmail");
-    const passInput = document.getElementById("signupPassword");
-    const confirmInput = document.getElementById("signupPasswordConfirm");
-    const btnSubmit = document.getElementById("btnSignupSubmit");
-
-    const nome = nomeInput.value;
-    const email = emailInput.value;
-    const password = passInput.value;
-    const confirm = confirmInput.value;
-
-    if (password !== confirm) {
-      msg.textContent = "Senhas não coincidem";
-      msg.style.color = "#ff4444";
-      return;
-    }
-
-    try {
-      msg.textContent = "Processando criação de acesso...";
-      btnSubmit.disabled = true;
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          // Ajustado para o caminho do seu repositório no GitHub Pages
-          emailRedirectTo: window.location.origin + "/elayon-presenca/login.html",
-          data: { display_name: nome }
+        if (password !== confirm) {
+            msg.innerText = "As senhas não coincidem.";
+            msg.style.color = "#ff4444";
+            return;
         }
-      });
 
-      DEBUG({ data, error });
+        try {
+            btn.disabled = true;
+            btn.innerText = "Processando...";
+            msg.innerText = "Conectando ao Elayon...";
 
-      if (error) throw error;
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { full_name: nome },
+                    emailRedirectTo: window.location.origin + "/elayon-presenca/login.html"
+                }
+            });
 
-      msg.innerHTML = "<span style='color: #00ff41'>Conta criada! Verifique seu e-mail para confirmar.</span>";
-      
-      setTimeout(() => {
-        window.location.href = "obrigado-cadastro.html";
-      }, 2000);
+            if (error) throw error;
 
-    } catch (error) {
-      DEBUG("ERRO NO CADASTRO: " + error.message);
-      msg.textContent = error.message;
-      msg.style.color = "#ff4444";
-    } finally {
-      btnSubmit.disabled = false;
-    }
-  });
+            DEBUG("Cadastro OK: " + data.user.id);
+            msg.innerHTML = "<span style='color: #00ff41'>Sucesso! Verifique seu e-mail agora.</span>";
+            
+            // Pequeno delay para o usuário ler a mensagem antes de ir para a página de obrigado
+            setTimeout(() => {
+                window.location.href = "obrigado-cadastro.html";
+            }, 2500);
+
+        } catch (err) {
+            DEBUG(err);
+            msg.innerText = "Erro: " + err.message;
+            msg.style.color = "#ff4444";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Criar meu acesso";
+        }
+    });
 }
 
-/* ================== LOGIN ================== */
+/* --- FLUXO DE LOGIN --- */
 function initLogin() {
-  const form = document.getElementById("loginForm");
-  const msg = document.getElementById("loginMessage");
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("loginMessage");
 
-  if (!form) return;
+    if (!form) return;
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    const emailInput = document.getElementById("loginEmail");
-    const passInput = document.getElementById("loginPassword");
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById("loginEmail").value;
+        const pass = document.getElementById("loginPassword").value;
 
-    msg.textContent = "Autenticando...";
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: emailInput.value,
-      password: passInput.value
+            if (error) throw error;
+
+            msg.innerText = "Entrando...";
+            window.location.href = "painel.html";
+
+        } catch (err) {
+            msg.innerText = "Dados inválidos ou conta não confirmada.";
+            msg.style.color = "#ff4444";
+        }
     });
-
-    if (error) {
-      DEBUG(error);
-      msg.textContent = "E-mail ou senha incorretos.";
-      msg.style.color = "#ff4444";
-      return;
-    }
-
-    msg.textContent = "Acesso autorizado. Entrando...";
-    setTimeout(() => {
-      window.location.href = "painel.html";
-    }, 1000);
-  });
 }
