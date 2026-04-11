@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Teste Auth Supabase • Elayon</title>
+</head>
+
+<body>
+
+<h1>Teste completo Supabase</h1>
+
+<input id="email" placeholder="email">
+<input id="senha" placeholder="senha" type="password">
+
+<br><br>
+
+<button onclick="testarConexao()">1. Testar conexão</button>
+<button onclick="criarConta()">2. Criar conta</button>
+<button onclick="fazerLogin()">3. Login</button>
+
+<pre id="log" style="background:black;color:lime;padding:10px;height:300px;overflow:auto;"></pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const logBox = document.getElementById("log");
+
+function log(msg){
+  logBox.textContent += "\n" + JSON.stringify(msg, null, 2);
+  console.log(msg);
+}
+
+const supabase = window.supabase.createClient(
+  "https://eudcjihffrfmhzmfwtlg.supabase.co",
+  "COLE_AQUI_SUA_ANON_KEY_COMPLETA"
+);
+
+async function testarConexao(){
+  log("=== TESTE CONEXÃO ===");
+
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    log({data,error});
+  } catch(e){
+    log(e);
+  }
+}
+
+async function criarConta(){
+  log("=== CRIAR CONTA ===");
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: senha,
+    options:{
+      emailRedirectTo: window.location.origin + "/elayon-presenca/login.html"
+    }
+  });
+
+  log({data,error});
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  alert("Conta criada. Veja seu e-mail.");
+}
+
+async function fazerLogin(){
+  log("=== LOGIN ===");
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: senha
+  });
+
+  log({data,error});
+
+  if(error){
+    alert("Erro login: " + error.message);
+    return;
+  }
+
+  alert("Login OK");
+}
+</script>
+
+</body>
+</html>
