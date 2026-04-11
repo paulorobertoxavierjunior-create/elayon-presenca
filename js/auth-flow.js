@@ -12,7 +12,7 @@ const DEBUG = (msg) => {
 };
 
 const SUPABASE_URL = "https://eudcjihffrfmhzmfwtlg.supabase.co";
-const SUPABASE_KEY = "COLE_AQUI_SUA_ANON_KEY_COMPLETA"; // <-- Troque pela sua chave!
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGNqaWhmZnJmbWh6bWZ3dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE3MjUsImV4cCI6MjA5MDMxNzcyNX0.2tod6vvl_4SAXzSmW1wU8Mk9pLn8fvhF2xrAZOysUu0"; // <-- Troque pela sua chave!
 
 // Inicialização segura
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
