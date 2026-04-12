@@ -4,61 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acessar • Elayon Presença</title>
-  <meta name="description" content="Acesse sua conta no Elayon Presença.">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-page="login">
   <main class="app-shell">
     <section class="form-card">
       <div class="hero-badge">Acesso</div>
-
       <h1 class="form-title">Acessar</h1>
-      <p class="form-subtitle">
-        Entre com seu e-mail e senha para acessar o Elayon Presença.
-      </p>
+      
+      <form id="loginForm" class="form-stack">
+        <label>E-mail</label>
+        <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" required>
 
-      <form id="loginForm" class="form-stack" novalidate>
-        <label for="loginEmail">E-mail</label>
-        <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="username" required>
-
-        <label for="loginPassword">Senha</label>
+        <label>Senha</label>
         <div class="password-wrap">
-          <input id="loginPassword" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
-          <button type="button" class="toggle-password" data-target="loginPassword" aria-label="Mostrar ou ocultar senha">👁</button>
+          <input id="loginPassword" type="password" placeholder="Sua senha" required>
+          <button type="button" class="toggle-password" data-target="loginPassword">👁</button>
         </div>
 
-        <button class="btn btn-primary" id="btnLoginSubmit" type="submit">Entrar no sistema</button>
+        <button class="btn btn-primary" type="submit">Entrar no sistema</button>
       </form>
 
       <div id="loginMessage" class="form-message">Informe seus dados para entrar.</div>
-
-      <pre id="debugBox" class="debug-box">Logs:</pre>
 
       <div class="hero-actions top-gap">
         <a class="btn btn-secondary" href="cadastro.html">Criar acesso</a>
         <a class="btn btn-secondary" href="index.html">Voltar</a>
       </div>
-
-      <div class="hero-links top-gap">
-        <a href="cadastro.html">Ainda não tem conta? Criar acesso</a>
-        <a href="recuperar-senha.html">Esqueci minha senha</a>
-      </div>
     </section>
-
-    <div class="footer-nav">
-      <div class="footer-links">
-        <a href="https://elayon.space">← Voltar ao site</a>
-        <a href="https://elayon.space/contato/">Contato</a>
-        <a href="https://elayon.space/faq/">Suporte</a>
-        <a href="https://elayon.space/termos/">Termos</a>
-        <a href="https://elayon.space/politica-privacidade/">Privacidade</a>
-        <a href="login.html" class="footer-accent">Acesso</a>
-      </div>
-      <p>Suporte Elayon • interação consciente e uso responsável</p>
-    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/auth-flow.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
