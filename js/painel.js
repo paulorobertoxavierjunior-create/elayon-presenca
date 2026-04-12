@@ -1,149 +1,81 @@
-(function () {
-  const supabase = window.ELAYON_SUPABASE || null;
+const SUPABASE_URL = "https://eudcjihffrfmhzmfwtlg.supabase.co";
+const SUPABASE_KEY = "COLE_AQUI_A_ANON_KEY_COMPLETA";
 
-  const ACCESS_KEY = "elayon_operator_access";
-  // Já deixei evidente no código:
-  // esta chave guarda a aprovação temporária do operador.
-  // Quando approved = true, as ferramentas Lion são liberadas no painel.
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+async function carregarUsuario() {
+  const welcomeTitle = document.getElementById("welcomeTitle");
   const userName = document.getElementById("userName");
   const userEmail = document.getElementById("userEmail");
-  const systemStatus = document.getElementById("systemStatus");
-  const accessStatus = document.getElementById("accessStatus");
-  const lastState = document.getElementById("lastState");
-  const lionToolsText = document.getElementById("lionToolsText");
-  const lionToolsCard = document.getElementById("lionToolsCard");
+  const userPlan = document.getElementById("userPlan");
+  const userAccessStatus = document.getElementById("userAccessStatus");
 
-  const btnIniciarAvaliacao = document.getElementById("btnIniciarAvaliacao");
-  const btnAbrirOperador = document.getElementById("btnAbrirOperador");
-  const btnLogout = document.getElementById("btnLogout");
-
-  const btnFalaLivre = document.getElementById("btnFalaLivre");
-  const btnTreinamentoVocal = document.getElementById("btnTreinamentoVocal");
-  const btnRelatorioLion = document.getElementById("btnRelatorioLion");
-
-  const btnToggleLogs = document.getElementById("btnToggleLogs");
-  const btnLimparLogs = document.getElementById("btnLimparLogs");
-  const logsPanel = document.getElementById("logsPanel");
-  const logBox = document.getElementById("logBox");
-
-  function log(msg) {
-    const t = new Date().toLocaleTimeString("pt-BR");
-    logBox.textContent += `[${t}] ${msg}\n`;
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-
-  function loadOperatorAccess() {
-    try {
-      return JSON.parse(localStorage.getItem(ACCESS_KEY) || "null");
-    } catch {
-      return null;
-    }
-  }
-
-  function setLionLocked(locked) {
-    btnFalaLivre.disabled = locked;
-    btnTreinamentoVocal.disabled = locked;
-    btnRelatorioLion.disabled = locked;
-
-    if (locked) {
-      accessStatus.textContent = "Pendente de avaliação";
-      lastState.textContent = "Aguardando primeira conferência";
-      lionToolsText.textContent =
-        "Ainda bloqueadas. O acesso será liberado após a conclusão da avaliação obrigatória.";
-      lionToolsCard.classList.add("lion-locked");
-      log("ferramentas Lion mantidas bloqueadas");
-    } else {
-      accessStatus.textContent = "Apto para seguir";
-      lastState.textContent = "Operador aprovado para uso";
-      lionToolsText.textContent =
-        "Ferramentas Lion liberadas para este usuário.";
-      lionToolsCard.classList.remove("lion-locked");
-      log("ferramentas Lion liberadas");
-    }
-  }
-
-  async function hydrateUser() {
-    if (!supabase) {
-      systemStatus.textContent = "OFF";
-      userName.textContent = "Supabase não conectado";
-      userEmail.textContent = "Supabase não conectado";
-      log("ERRO: Supabase não conectado");
-      return;
-    }
-
+  try {
     const { data, error } = await supabase.auth.getUser();
 
     if (error || !data?.user) {
-      log("ERRO: usuário não autenticado");
       window.location.href = "login.html";
       return;
     }
 
     const user = data.user;
-    userName.textContent = user.user_metadata?.nome || "Usuário";
-    userEmail.textContent = user.email || "—";
-    systemStatus.textContent = "ON";
-    log(`usuário carregado: ${user.email}`);
+    const nome = user.user_metadata?.nome || "Usuário";
+    const email = user.email || "Sem e-mail";
+
+    welcomeTitle.textContent = `Bem-vindo ao Elayon Space, ${nome}.`;
+    userName.textContent = nome;
+    userEmail.textContent = email;
+    userPlan.textContent = "Padrão";
+    userAccessStatus.textContent = "Autenticado";
+  } catch (e) {
+    console.error("Erro ao carregar usuário:", e);
+    window.location.href = "login.html";
   }
+}
 
-  function bindActions() {
-    btnIniciarAvaliacao.addEventListener("click", () => {
-      log("botão iniciar avaliação acionado");
-      window.location.href = "operador-teste.html";
-    });
+async function logout() {
+  await supabase.auth.signOut();
+  window.location.href = "login.html";
+}
 
-    btnAbrirOperador.addEventListener("click", () => {
-      log("abrindo teste do operador");
-      window.location.href = "operador-teste.html";
-    });
+function ligarBotoes() {
+  const btnLogout = document.getElementById("btnLogout");
+  const btnAbrirPresenca = document.getElementById("btnAbrirPresenca");
+  const btnPerfil = document.getElementById("btnPerfil");
 
-    btnLogout.addEventListener("click", async () => {
-      log("logout solicitado");
-      if (supabase) {
-        await supabase.auth.signOut();
-      }
-      window.location.href = "login.html";
-    });
+  const btnToolPresenca = document.getElementById("btnToolPresenca");
+  const btnToolFalaLivre = document.getElementById("btnToolFalaLivre");
+  const btnToolTreino = document.getElementById("btnToolTreino");
+  const btnToolRelatorio = document.getElementById("btnToolRelatorio");
 
-    btnFalaLivre.addEventListener("click", () => {
-      log("fala livre acionada");
-      alert("Fala livre será ligada na próxima etapa.");
-    });
+  btnLogout?.addEventListener("click", logout);
 
-    btnTreinamentoVocal.addEventListener("click", () => {
-      log("treinamento vocal acionado");
-      alert("Treinamento vocal será ligado na próxima etapa.");
-    });
+  btnAbrirPresenca?.addEventListener("click", () => {
+    window.location.href = "presenca.html";
+  });
 
-    btnRelatorioLion.addEventListener("click", () => {
-      log("relatório Lion acionado");
-      window.location.href = "relatorio-lion.html";
-    });
+  btnPerfil?.addEventListener("click", () => {
+    alert("Área de perfil em construção.");
+  });
 
-    btnToggleLogs.addEventListener("click", () => {
-      const hidden = logsPanel.style.display === "none";
-      logsPanel.style.display = hidden ? "block" : "none";
-      btnToggleLogs.textContent = hidden ? "Ocultar logs" : "Mostrar logs";
-      log(hidden ? "logs exibidos" : "logs ocultados");
-    });
+  btnToolPresenca?.addEventListener("click", () => {
+    window.location.href = "presenca.html";
+  });
 
-    btnLimparLogs.addEventListener("click", () => {
-      logBox.textContent = "";
-      log("logs limpos");
-    });
-  }
+  btnToolFalaLivre?.addEventListener("click", () => {
+    alert("Fala livre será conectada na próxima etapa.");
+  });
 
-  async function init() {
-    log("painel iniciado");
-    await hydrateUser();
+  btnToolTreino?.addEventListener("click", () => {
+    alert("Treinamento vocal será conectado na próxima etapa.");
+  });
 
-    const access = loadOperatorAccess();
-    setLionLocked(!(access && access.approved));
+  btnToolRelatorio?.addEventListener("click", () => {
+    alert("Relatório Lion será conectado na próxima etapa.");
+  });
+}
 
-    bindActions();
-    log("painel pronto");
-  }
-
-  init();
-})();
+document.addEventListener("DOMContentLoaded", async () => {
+  await carregarUsuario();
+  ligarBotoes();
+});
