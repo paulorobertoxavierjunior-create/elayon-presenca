@@ -129,3 +129,14 @@ function initLogin() {
         }
     });
 }
+
+// Detecta se o usuário acabou de vir do e-mail de confirmação
+const hash = window.location.hash;
+if (hash && hash.includes("access_token")) {
+    DEBUG("Confirmação de e-mail detectada via URL!");
+    const msg = document.getElementById("loginMessage") || document.getElementById("signupMessage");
+    if (msg) {
+        msg.innerHTML = "<b style='color: #00ff41'>E-mail confirmado com sucesso! Agora você pode entrar.</b>";
+    }
+}
+
