@@ -1,11 +1,14 @@
 (function () {
     const cfg = window.ELAYON_CONFIG;
-    if (!cfg) return;
+    if (!cfg) {
+        console.error("Configuração central não encontrada.");
+        return;
+    }
 
     const supabase = window.supabase.createClient(cfg.supabase.url, cfg.supabase.anonKey);
 
     async function validarESincronizar() {
-        // 1. Bloqueio de Segurança Instantâneo
+        // 1. Verificação de Sessão
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
@@ -16,37 +19,57 @@
         const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error || !user) {
-            await supabase.auth.signOut();
-            window.location.href = cfg.routes.login;
+            await forcarSaida();
             return;
         }
 
-        // 2. Sincronização de Dados com a Interface
-        document.body.style.display = "block"; // Revela o painel
+        // 2. Revelar Painel e Sincronizar Identidade
+        document.body.style.display = "block";
         
-        const nome = user.user_metadata?.nome || "Operador";
-        const email = user.email;
+        // Prioriza o Nickname (nome do metadata)
+        const nickname = user.user_metadata?.nome || "Operador";
+        const emailHUD = user.email;
 
-        // Preenche os campos do HUD e do Card
-        document.getElementById('hud-id').textContent = email.split('@')[0].toUpperCase();
-        document.getElementById('userDisplayName').textContent = nome;
-        document.getElementById('userDisplayEmail').textContent = email;
+        // Preenche o HUD (ID técnico) e o Card (Nome Humano)
+        if (document.getElementById('hud-id')) {
+            document.getElementById('hud-id').textContent = emailHUD.toUpperCase();
+        }
+        if (document.getElementById('userDisplayName')) {
+            document.getElementById('userDisplayName').textContent = nickname;
+        }
+        if (document.getElementById('userDisplayEmail')) {
+            document.getElementById('userDisplayEmail').textContent = "SESSÃO BIO-TÉCNICA ATIVA";
+        }
 
-        console.log("Sessão Técnica Estabilizada para:", nome);
+        console.log("Sistema Estabilizado: " + nickname);
     }
 
-    // Ação: Logout
-    document.getElementById('actionLogout')?.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = cfg.routes.login;
-    });
+    // Função de Logout Real e Definitivo
+    async function forcarSaida() {
+        try {
+            await supabase.auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
+            // .replace impede que o usuário volte ao painel clicando na seta "voltar" do navegador
+            window.location.replace(cfg.routes.login);
+        } catch (e) {
+            window.location.href = cfg.routes.login;
+        }
+    }
 
-    // Ação: Voltar para o Perfil Core (Cadastro)
-    document.getElementById('btnGoToCore')?.addEventListener('click', () => {
-        window.location.href = cfg.routes.painel;
-    });
+    // Eventos de Botões
+    document.addEventListener("DOMContentLoaded", () => {
+        validarESincronizar();
 
-    document.addEventListener("DOMContentLoaded", validarESincronizar);
+        // Botão Encerrar Sessão
+        document.getElementById('actionLogout')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await forcarSaida();
+        });
+
+        // Botão Perfil (Volta para o Cadastro)
+        document.getElementById('btnGoToCore')?.addEventListener('click', () => {
+            window.location.href = cfg.routes.painel;
+        });
+    });
 })();
