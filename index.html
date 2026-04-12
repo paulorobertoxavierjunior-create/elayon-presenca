@@ -3,55 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bancada • Elayon Presença</title>
+    <title>Bancada de Comando • Elayon</title>
     <style>
-        body { display: none; font-family: system-ui, sans-serif; background: #f0f7f8; margin: 0; color: #0a2a2f; }
-        
-        .header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cfe4e7; }
-        .logo { font-weight: bold; color: #66c7c0; }
-        
-        /* Botão de Perfil com ícone sugerido */
-        .profile-btn { 
-            background: #66c7c0; color: white; border: none; padding: 8px; 
-            border-radius: 50%; cursor: pointer; width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
+        :root {
+            --tech-cyan: #66c7c0;
+            --tech-green: #7bd490;
+            --dark-panel: #0a2a2f;
+            --bg-lab: #f0f7f8;
         }
 
-        .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        
-        .tool-list { margin-top: 25px; display: flex; flex-direction: column; gap: 12px; }
-        .tool-item { 
-            background: #7bd490; color: #0a2a2f; padding: 18px; 
-            border-radius: 12px; text-align: center; font-weight: 600; 
-            text-decoration: none; transition: 0.2s;
+        body { display: none; margin: 0; background: var(--bg-lab); font-family: 'Courier New', Courier, monospace; color: var(--dark-panel); }
+
+        .header-hud {
+            background: var(--dark-panel);
+            color: var(--tech-cyan);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--tech-cyan);
         }
-        .tool-item:hover { transform: scale(1.02); filter: brightness(1.05); }
+
+        .user-tag { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .main-bancada { max-width: 800px; margin: 20px auto; padding: 20px; }
+
+        .section-title { 
+            font-size: 14px; 
+            font-weight: bold; 
+            border-left: 4px solid var(--tech-green); 
+            padding-left: 10px; 
+            margin: 20px 0 10px;
+            text-transform: uppercase;
+        }
+
+        .grid-ferramentas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-tool {
+            background: white;
+            border: 1px solid #cfe4e7;
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--dark-panel);
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+            opacity: 0.6;
+            pointer-events: none; /* Desativado até conexão do repo */
+        }
+
+        .btn-tool span { font-size: 10px; color: #4a6b70; margin-top: 5px; font-weight: normal; }
+
+        /* Estilo para ferramentas Ativas */
+        .btn-tool.active {
+            opacity: 1;
+            pointer-events: auto;
+            border-left: 5px solid var(--tech-green);
+            background: #fff;
+            box-shadow: 4px 4px 0px var(--tech-cyan);
+        }
+
+        .btn-tool.active:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--tech-green); }
+
+        .btn-perfil-circle {
+            background: var(--tech-cyan);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 600px) { .grid-ferramentas { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body data-page="presenca">
 
-    <header class="header">
-        <div class="logo">ELAYON PRESENÇA</div>
-        <button class="profile-btn" id="btnProfile" title="Meu Perfil">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <header class="header-hud">
+        <div class="user-tag">STATUS: OPERACIONAL | <span id="node-id">USER_LOAD...</span></div>
+        <button class="btn-perfil-circle" id="btnGoProfile" title="Perfil Core">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         </button>
     </header>
 
-    <main class="container">
-        <div class="card">
-            <h2 id="welcomeMsg">Carregando bancada...</h2>
-            <p style="color: #4a6b70; font-size: 14px;">Selecione uma ferramenta validada do Lab:</p>
-            
-            <nav class="tool-list">
-                <a href="#" class="tool-item">Presença (Módulo 0)</a>
-                <a href="#" class="tool-item">Fala Livre</a>
-                <a href="#" class="tool-item">Treinamento</a>
-                <a href="#" class="tool-item">Relatórios Ativos</a>
-            </nav>
-        </div>
+    <main class="main-bancada">
         
-        <button id="btnLogout" style="margin-top: 20px; background: none; border: none; color: #ff7a7a; cursor: pointer; font-weight: bold; width: 100%;">Encerrar Sessão</button>
+        <div class="section-title">Vertical: Biologia & Saúde</div>
+        <div class="grid-ferramentas">
+            <a href="#" class="btn-tool" id="tool-health">Elayon Health <span>Monitoramento Metabólico</span></a>
+            <a href="#" class="btn-tool" id="tool-psiq">PsiQ <span>Análise de Padrão Psíquico</span></a>
+        </div>
+
+        <div class="section-title">Vertical: Educação & CRS</div>
+        <div class="grid-ferramentas">
+            <a href="#" class="btn-tool" id="tool-vibracoes">Vibrações de Leão <span>Treino Oral & Impressão IA</span></a>
+        </div>
+
+        <div class="section-title">Vertical: Operações & Mecânica</div>
+        <div class="grid-ferramentas">
+            <a href="#" class="btn-tool active" id="tool-presenca">Elayon Presença <span>Bater Ponto & Avaliação</span></a>
+            <a href="#" class="btn-tool" id="tool-pc">Elayon PC <span>Interface Mouse/Teclado</span></a>
+            <a href="#" class="btn-tool" id="tool-mechanics">Elayon Mechanics <span>Simbioses Hipercomplexas</span></a>
+        </div>
+
+        <div class="section-title">Sensores</div>
+        <div class="grid-ferramentas">
+            <a href="#" class="btn-tool" id="tool-sensores">Aquisição de Dados <span>Input de Hardware externo</span></a>
+        </div>
+
+        <button id="btnSair" style="margin-top: 40px; width: 100%; padding: 10px; background: #ff7a7a; color: white; border: none; border-radius: 4px; font-family: inherit; font-weight: bold; cursor: pointer;">SISTEMA: LOGOUT</button>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
