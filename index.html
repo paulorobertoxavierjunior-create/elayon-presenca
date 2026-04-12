@@ -1,166 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancada • Elayon Presença</title>
+    <style>
+        body { display: none; font-family: system-ui, sans-serif; background: #f0f7f8; margin: 0; color: #0a2a2f; }
+        
+        .header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cfe4e7; }
+        .logo { font-weight: bold; color: #66c7c0; }
+        
+        /* Botão de Perfil com ícone sugerido */
+        .profile-btn { 
+            background: #66c7c0; color: white; border: none; padding: 8px; 
+            border-radius: 50%; cursor: pointer; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
 
-<title>Elayon Presença</title>
-
-<style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#eef5f6;
-  color:#173b42;
-}
-
-.container {
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-
-.card {
-  background:white;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.05);
-}
-
-h1 {
-  margin-top:0;
-}
-
-.top-bar {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:20px;
-}
-
-.btn {
-  display:block;
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  background:#6ec1c8;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.btn.secondary {
-  background:#173b42;
-}
-
-.btn.small {
-  width:auto;
-  display:inline-block;
-  padding:8px 14px;
-}
-
-.message {
-  font-size:14px;
-  color:#5f7d82;
-}
-
-.highlight {
-  background:#e8f6f7;
-  padding:12px;
-  border-radius:10px;
-  margin-top:10px;
-}
-</style>
+        .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        .tool-list { margin-top: 25px; display: flex; flex-direction: column; gap: 12px; }
+        .tool-item { 
+            background: #7bd490; color: #0a2a2f; padding: 18px; 
+            border-radius: 12px; text-align: center; font-weight: 600; 
+            text-decoration: none; transition: 0.2s;
+        }
+        .tool-item:hover { transform: scale(1.02); filter: brightness(1.05); }
+    </style>
 </head>
+<body data-page="presenca">
 
-<body>
+    <header class="header">
+        <div class="logo">ELAYON PRESENÇA</div>
+        <button class="profile-btn" id="btnProfile" title="Meu Perfil">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+    </header>
 
-<div class="container">
+    <main class="container">
+        <div class="card">
+            <h2 id="welcomeMsg">Carregando bancada...</h2>
+            <p style="color: #4a6b70; font-size: 14px;">Selecione uma ferramenta validada do Lab:</p>
+            
+            <nav class="tool-list">
+                <a href="#" class="tool-item">Presença (Módulo 0)</a>
+                <a href="#" class="tool-item">Fala Livre</a>
+                <a href="#" class="tool-item">Treinamento</a>
+                <a href="#" class="tool-item">Relatórios Ativos</a>
+            </nav>
+        </div>
+        
+        <button id="btnLogout" style="margin-top: 20px; background: none; border: none; color: #ff7a7a; cursor: pointer; font-weight: bold; width: 100%;">Encerrar Sessão</button>
+    </main>
 
-  <!-- TOPO -->
-  <div class="top-bar">
-    <button class="btn small secondary" onclick="window.location.href='https://elayon.space'">
-      ← Site
-    </button>
-
-    <button class="btn small" id="btnLogout">
-      Sair
-    </button>
-  </div>
-
-  <!-- BOAS VINDAS -->
-  <div class="card">
-    <h1 id="welcomeTitle">Verificando acesso...</h1>
-
-    <div class="highlight">
-      <p>
-        Este é o seu espaço.
-      </p>
-      <p>
-        Aqui você se organiza, se observa e decide como avançar.
-      </p>
-    </div>
-  </div>
-
-  <!-- PERFIL -->
-  <div class="card">
-    <h2>Seu Perfil</h2>
-
-    <p><strong>Nome:</strong> <span id="userName">...</span></p>
-    <p><strong>Email:</strong> <span id="userEmail">...</span></p>
-    <p><strong>Plano:</strong> <span id="userPlan">...</span></p>
-    <p><strong>Status:</strong> <span id="userAccessStatus">...</span></p>
-  </div>
-
-  <!-- CATRACA CONSCIENTE -->
-  <div class="card">
-    <h2>Entrada consciente</h2>
-
-    <p class="message">
-      Tenha paciência com você mesmo.<br>
-      Esse é o seu espaço e o seu tempo.<br>
-      Respeite-se.
-    </p>
-
-    <button class="btn" id="btnIniciar">
-      Iniciar Simbiose
-    </button>
-  </div>
-
-  <!-- BANCADA (travada até depois) -->
-  <div class="card">
-    <h2>Bancada de Ferramentas</h2>
-
-    <button class="btn" id="btnToolPresenca" disabled>
-      Presença
-    </button>
-
-    <button class="btn" id="btnToolFalaLivre" disabled>
-      Fala Livre
-    </button>
-
-    <button class="btn" id="btnToolTreino" disabled>
-      Treinamento
-    </button>
-
-    <button class="btn" id="btnToolRelatorio" disabled>
-      Relatório
-    </button>
-
-    <p class="message">
-      As ferramentas são liberadas após iniciar sua presença.
-    </p>
-  </div>
-
-</div>
-
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- MOTOR -->
-<script src="js/painel.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://paulorobertoxavierjunior-create.github.io/elayon-cadastro/js/config.js"></script>
+    <script src="js/presenca.js"></script>
 </body>
 </html>
