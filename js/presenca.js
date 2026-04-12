@@ -1,8 +1,11 @@
 (function () {
     const cfg = window.ELAYON_CONFIG;
+    if (!cfg) return;
+
     const supabase = window.supabase.createClient(cfg.supabase.url, cfg.supabase.anonKey);
 
-    async function checkSecurity() {
+    async function validarESincronizar() {
+        // 1. Bloqueio de Segurança Instantâneo
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
@@ -11,27 +14,39 @@
         }
 
         const { data: { user }, error } = await supabase.auth.getUser();
+        
         if (error || !user) {
+            await supabase.auth.signOut();
             window.location.href = cfg.routes.login;
             return;
         }
 
-        // Sucesso
-        document.body.style.display = "block";
-        document.getElementById('node-id').textContent = user.email.toUpperCase();
+        // 2. Sincronização de Dados com a Interface
+        document.body.style.display = "block"; // Revela o painel
+        
+        const nome = user.user_metadata?.nome || "Operador";
+        const email = user.email;
+
+        // Preenche os campos do HUD e do Card
+        document.getElementById('hud-id').textContent = email.split('@')[0].toUpperCase();
+        document.getElementById('userDisplayName').textContent = nome;
+        document.getElementById('userDisplayEmail').textContent = email;
+
+        console.log("Sessão Técnica Estabilizada para:", nome);
     }
 
-    // Navegação do Botão de Perfil (Volta ao Cadastro)
-    document.getElementById('btnGoProfile')?.addEventListener('click', () => {
-        window.location.href = cfg.routes.painel;
-    });
-
-    // Logout: Limpa tudo e volta para a tela de login do cadastro
-    document.getElementById('btnSair')?.addEventListener('click', async () => {
-        await supabase.auth.signOut();
+    // Ação: Logout
+    document.getElementById('actionLogout')?.addEventListener('click', async () => {
+        const { error } = await supabase.auth.signOut();
         localStorage.clear();
+        sessionStorage.clear();
         window.location.href = cfg.routes.login;
     });
 
-    document.addEventListener("DOMContentLoaded", checkSecurity);
+    // Ação: Voltar para o Perfil Core (Cadastro)
+    document.getElementById('btnGoToCore')?.addEventListener('click', () => {
+        window.location.href = cfg.routes.painel;
+    });
+
+    document.addEventListener("DOMContentLoaded", validarESincronizar);
 })();
