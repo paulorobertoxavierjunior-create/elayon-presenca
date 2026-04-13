@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bancada de Comando • Elayon</title>
     <style>
-        /* CSS de Bloqueio - Inicia invisível para segurança */
         body { display: none; margin: 0; background: #f0f7f8; font-family: 'Courier New', Courier, monospace; color: #0a2a2f; }
 
         .hud-header {
@@ -62,7 +61,6 @@
             pointer-events: none;
         }
 
-        /* Classe para ferramentas conectadas */
         .tool-btn.active {
             opacity: 1;
             pointer-events: auto;
@@ -101,20 +99,18 @@
             <p id="userDisplayEmail">Validando credenciais de acesso...</p>
         </div>
 
-<div class="section-label">MÓDULOS DE CAMPO</div>
-<div class="tool-grid">
-    <a href="#" class="tool-btn active" id="btn-presenca">Elayon Presença <span>Ferramentas</span></a>
-    <a href="#" class="tool-btn" id="btn-psiq">Elayon PsiQ <span>ANÁLISE PSÍQUICA</span></a>
-    <a href="#" class="tool-btn" id="btn-health">Elayon Health <span>MONITORAMENTO</span></a>
-    <a href="#" class="tool-btn" id="btn-vibracoes">Vibrações de Leão <span>TREINO ORAL IA</span></a>
-</div>
+        <div class="section-label">CATRACA OPERACIONAL (PING-PONG)</div>
+        <div class="tool-grid">
+            <a href="https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/" class="tool-btn active" id="btn-avaliacao">Avaliação de Estado CRS <span>→</span></a>
+            <a href="https://paulorobertoxavierjunior-create.github.io/vibracoes-de-leao/" class="tool-btn active" id="btn-vibracoes">Vibrações de Leão <span>→</span></a>
+        </div>
 
-<div class="section-label">ENGENHARIA & HARDWARE</div>
-<div class="tool-grid">
-    <a href="#" class="tool-btn" id="btn-pc">Elayon PC <span>INTERFACE MOUSE/TECLADO</span></a>
-    <a href="#" class="tool-btn" id="btn-mechanics">Elayon Mechanics <span>SIMBIOSE MECÂNICA</span></a>
-</div>
-
+        <div class="section-label">MÓDULOS TÉCNICOS</div>
+        <div class="tool-grid">
+            <a href="#" class="tool-btn" id="btn-psiq">Elayon PsiQ <span>OFFLINE</span></a>
+            <a href="#" class="tool-btn" id="btn-health">Elayon Health <span>OFFLINE</span></a>
+            <a href="#" class="tool-btn" id="btn-pc">Elayon PC <span>OFFLINE</span></a>
+        </div>
 
         <div class="logout-area">
             <button class="btn-logout" id="actionLogout">ENCERRAR SESSÃO [LOGOUT]</button>
