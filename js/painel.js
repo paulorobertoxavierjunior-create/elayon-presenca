@@ -4,6 +4,8 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let _userId = null;
+
 // ==========================
 // PROTEÇÃO TOTAL
 // ==========================
@@ -47,6 +49,60 @@ function liberarFerramentas() {
 }
 
 // ==========================
+// TOKENS
+// ==========================
+
+async function exibirTokens(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('tokens')
+    .eq('id', userId)
+    .single();
+
+  if (!error && data) {
+    const saldo = data.tokens ?? 0;
+    const hudTokens = document.getElementById('hud-tokens');
+    const cardTokens = document.getElementById('card-tokens');
+    if (hudTokens) hudTokens.textContent = saldo;
+    if (cardTokens) cardTokens.textContent = saldo;
+  }
+}
+
+// ==========================
+// CÓDIGO PROMOCIONAL
+// ==========================
+
+async function resgatarCodigo() {
+  const input = document.getElementById('inputCodigo');
+  const msg = document.getElementById('msgCodigo');
+  const codigo = input?.value.trim().toUpperCase();
+
+  if (!codigo) return;
+
+  if (codigo !== 'ELA10PRESENCA') {
+    msg.textContent = 'Código inválido.';
+    msg.style.color = '#ff7a7a';
+    return;
+  }
+
+  const { error } = await supabase.rpc('adicionar_tokens', {
+    p_user_id: _userId,
+    p_quantidade: 10
+  });
+
+  if (error) {
+    msg.textContent = 'Erro ao resgatar. Tente novamente.';
+    msg.style.color = '#ff7a7a';
+    return;
+  }
+
+  input.value = '';
+  msg.textContent = '+10 tokens adicionados!';
+  msg.style.color = '#7bd490';
+  await exibirTokens(_userId);
+}
+
+// ==========================
 // LOGOUT
 // ==========================
 
@@ -81,6 +137,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!user) return;
 
+  _userId = user.id;
   preencher(user);
+  await exibirTokens(user.id);
   eventos();
 });
