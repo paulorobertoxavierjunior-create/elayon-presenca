@@ -4,10 +4,33 @@
 
     const supabase = window.supabase.createClient(cfg.supabase.url, cfg.supabase.anonKey);
 
+    // ==========================
+    // TOKENS
+    // ==========================
+
+    async function exibirTokens(userId) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('tokens')
+            .eq('id', userId)
+            .single();
+
+        if (!error && data) {
+            const saldo = data.tokens ?? 0;
+            const hudTokens = document.getElementById('hud-tokens');
+            const cardTokens = document.getElementById('card-tokens');
+            if (hudTokens) hudTokens.textContent = saldo;
+            if (cardTokens) cardTokens.textContent = saldo;
+        }
+    }
+
+    // ==========================
+    // VALIDAÇÃO E SINCRONIZAÇÃO
+    // ==========================
+
     async function validarESincronizar() {
         const { data: { session } } = await supabase.auth.getSession();
         
-        // Proteção: Se não houver sessão, manda para a página de login do CADASTRO
         if (!session) {
             window.location.href = cfg.routes.login;
             return;
@@ -28,23 +51,30 @@
         document.getElementById('hud-id').textContent = email.split('@')[0].toUpperCase();
         document.getElementById('userDisplayName').textContent = nome;
         document.getElementById('userDisplayEmail').textContent = "SESSÃO BIO-TÉCNICA ESTABILIZADA";
+
+        await exibirTokens(user.id);
     }
+
+    // ==========================
+    // LOGOUT
+    // ==========================
 
     async function encerrarSessaoReal() {
         await supabase.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
-        // Redireciona para o login do repositório de cadastro
         window.location.href = cfg.routes.login;
     }
 
-    // Ação: Logout
+    // ==========================
+    // EVENTOS
+    // ==========================
+
     document.getElementById('actionLogout')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await encerrarSessaoReal();
     });
 
-    // Ação: Voltar para o Perfil Core (Cadastro)
     document.getElementById('btnGoToCore')?.addEventListener('click', () => {
         window.location.href = cfg.routes.painel;
     });
