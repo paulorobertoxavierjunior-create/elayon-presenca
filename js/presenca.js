@@ -1,3 +1,4 @@
+
 (function () {
     const cfg = window.ELAYON_CONFIG;
     if (!cfg) return;
@@ -6,9 +7,9 @@
 
     let _userId = null;
 
-    // ==========================
-    // TOKENS
-    // ==========================
+    // ══════════════════════════════════════
+    // TOKENS — leitura e resgate
+    // ══════════════════════════════════════
 
     async function exibirTokens(userId) {
         const { data, error } = await supabase
@@ -26,15 +27,10 @@
         }
     }
 
-    // ==========================
-    // CÓDIGO PROMOCIONAL
-    // ==========================
-
     async function resgatarCodigo() {
         const input = document.getElementById('inputCodigo');
-        const msg = document.getElementById('msgCodigo');
+        const msg   = document.getElementById('msgCodigo');
         const codigo = input?.value.trim().toUpperCase();
-
         if (!codigo) return;
 
         if (codigo !== 'ELA10PRESENCA') {
@@ -49,7 +45,7 @@
         });
 
         if (error) {
-            msg.textContent = 'Erro ao resgatar. Tente novamente.';
+            msg.textContent = 'Erro ao resgatar.';
             msg.style.color = '#ff7a7a';
             return;
         }
@@ -60,8 +56,7 @@
         await exibirTokens(_userId);
     }
 
-    // Expõe funções pro HTML
-    window.resgatarCodigo = resgatarCodigo;
+    window.resgatarCodigo  = resgatarCodigo;
     window.toggleTokenForm = function () {
         const form = document.getElementById('tokenForm');
         form.style.display = form.style.display === 'block' ? 'none' : 'block';
@@ -71,9 +66,22 @@
         }
     };
 
-    // ==========================
+    // ══════════════════════════════════════
+    // NAVEGAÇÃO — passa token pro avaliacao
+    // ══════════════════════════════════════
+
+    async function irParaAvaliacao() {
+        const { data } = await supabase.auth.getSession();
+        const at = data?.session?.access_token;
+        const rt = data?.session?.refresh_token;
+        let url = 'https://paulorobertoxavierjunior-create.github.io/elayon-avaliacao/';
+        if (at && rt) url += '?at=' + encodeURIComponent(at) + '&rt=' + encodeURIComponent(rt);
+        window.location.href = url;
+    }
+
+    // ══════════════════════════════════════
     // VALIDAÇÃO E SINCRONIZAÇÃO
-    // ==========================
+    // ══════════════════════════════════════
 
     async function validarESincronizar() {
         const { data: { session } } = await supabase.auth.getSession();
@@ -90,22 +98,31 @@
             return;
         }
 
-        document.body.style.display = "block";
+        document.body.style.display = 'block';
 
-        const nome = user.user_metadata?.nome || "Operador";
+        const nome  = user.user_metadata?.nome || 'Operador';
         const email = user.email;
 
-        document.getElementById('hud-id').textContent = email.split('@')[0].toUpperCase();
-        document.getElementById('userDisplayName').textContent = nome;
-        document.getElementById('userDisplayEmail').textContent = "SESSÃO BIO-TÉCNICA ESTABILIZADA";
+        document.getElementById('hud-id').textContent          = email.split('@')[0].toUpperCase();
+        document.getElementById('userDisplayName').textContent  = nome;
+        document.getElementById('userDisplayEmail').textContent = 'SESSÃO BIO-TÉCNICA ESTABILIZADA';
 
         _userId = user.id;
         await exibirTokens(user.id);
+
+        // Vincula botão da calibração com passagem de token
+        const btnAvaliacao = document.getElementById('btn-avaliacao');
+        if (btnAvaliacao) {
+            btnAvaliacao.addEventListener('click', function(e) {
+                e.preventDefault();
+                irParaAvaliacao();
+            });
+        }
     }
 
-    // ==========================
+    // ══════════════════════════════════════
     // LOGOUT
-    // ==========================
+    // ══════════════════════════════════════
 
     async function encerrarSessaoReal() {
         await supabase.auth.signOut();
@@ -114,9 +131,9 @@
         window.location.href = cfg.routes.login;
     }
 
-    // ==========================
-    // EVENTOS
-    // ==========================
+    // ══════════════════════════════════════
+    // EVENTOS FIXOS
+    // ══════════════════════════════════════
 
     document.getElementById('actionLogout')?.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -127,5 +144,5 @@
         window.location.href = cfg.routes.painel;
     });
 
-    document.addEventListener("DOMContentLoaded", validarESincronizar);
+    document.addEventListener('DOMContentLoaded', validarESincronizar);
 })();
